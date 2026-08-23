@@ -6,7 +6,7 @@
   "description": "Steal the ideas, not the install.",
   "license": "MIT",
   "scripts": {
-    "test": "node --test scripts/",
+    "test": "node --test",
     "validate": "node scripts/validate.mjs"
   }
 }
