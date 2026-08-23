@@ -52,9 +52,14 @@ purely because it arrived with a bigger name attached.
 
 For every finding in the gate table whose verdict depends on the host
 lacking something, record how that absence was established, not just that it
-was observed. At minimum: the paths searched, the patterns or terms used,
-and whether the initial scoped search was widened before absence was
-concluded. "I did not see it" and "I searched these six paths with these
-three patterns and found nothing" are different claims. Only the second
-supports a verdict, and this section is where that support is written down
-so the approver at the gate can check it rather than take it on faith.
+was observed. A description of a search does not substitute for the search:
+record the literal command run (or the exact grep/search invocation) and its
+actual output, including the empty result that establishes absence, plus
+whether the initial scoped search was widened before absence was concluded.
+"I did not see it" and "I searched these six paths with these three
+patterns and found nothing" are different claims, and inventing plausible
+paths and patterns after the fact is indistinguishable from the first one.
+Only a recorded command with its recorded output supports a verdict. A
+finding whose absence evidence carries no command and no output is not ready
+for the gate, and this section is where that command and output are written
+down so the approver can check them rather than take them on faith.

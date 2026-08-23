@@ -44,6 +44,16 @@ vocabulary. A mechanism carried over under its source's marketing name
 arrives with that source's assumptions attached, and those assumptions are
 harder to spot once the name has stuck.
 
+Worked example: a source ships a branded feature called "AutoReviewGPT" that
+scores a pull request against a five-item checklist and blocks the merge
+below a threshold. The feature name is AutoReviewGPT; the mechanism
+underneath it is a weighted rubric gate that blocks on a numeric pass
+threshold before merge. Write down the second thing, not the first.
+
+Litmus: if you removed the source's name and product entirely, would what
+you wrote still tell you what to build? If it would not, you extracted a
+feature, not a mechanism.
+
 For a large source, use a bounded parallel fan-out: scouts write full
 evidence to scratch and return short summaries, so the orchestrating context
 stays small no matter how big the source is. For a small source, run this
@@ -59,10 +69,12 @@ nothing must widen before absence is claimed: more paths, more patterns, more
 terms, before the finding is allowed to say the host lacks something. "I did
 not see it" and "I searched these six paths with these three patterns and
 found nothing" are different claims, and only the second one supports a
-verdict. Each finding records how its absence was established, using the
-evidence-of-absence section of `references/findings-template.md`; a finding
-that only asserts absence has not satisfied this phase, no matter how
-confident the assertion reads.
+verdict. A description of a search is not evidence of one: record the literal
+command run and its actual output, including the empty result that
+establishes absence, using the evidence-of-absence section of
+`references/findings-template.md`. A finding whose absence evidence carries
+no command and no output is not ready for the gate, no matter how confident
+the description reads.
 
 This phase also produces the already-stronger list as an output in its own
 right, not a byproduct of the search: places where the host already has
