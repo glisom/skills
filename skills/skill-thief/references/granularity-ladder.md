@@ -41,6 +41,43 @@ things must never be filed there:
   discarded, and miss that it is live and working. Point at where it already
   lives instead.
 
+## When a mechanism isn't a finding yet
+
+The deferral guardrail above has a shape that is easy to miss: a mechanism
+whose whole value depends on a scale or shape the host does not currently
+have. A hook that routes between competing skills has nothing to route
+between in a plugin that ships one skill. A report that compares
+frontmatter budgets across skills has nothing to compare in the same host.
+Both fail the guardrail's own test, "would this reason still hold if the
+host had unlimited time," in a different way than a scheduling deferral
+does: they would stop holding if the host simply grew or changed shape,
+which makes them a deferral by scale rather than by schedule, and the
+guardrail bars them from Reject exactly the same way it bars "we are busy
+this quarter."
+
+The gap is that Reject is the only box that looks close. Absorb as a rule
+has nothing to write down for a mechanism that does not apply yet. Mint a
+new skill has no independent trigger for something not yet needed. Harden a
+gate has nothing to check. None of the four verdicts fit, and reaching for
+Reject anyway, because it is the closest available box, is the mistake this
+section exists to stop.
+
+The fix is not a fifth verdict; adding one would inflate the ladder this
+skill exists to keep small. A mechanism whose relevance depends on a
+condition the host does not currently meet is not a finding at all yet. It
+drops out before the gate, its reason recorded next to the already-stronger
+list (see `references/findings-template.md`), not filed as Reject and not
+forced into the gate table. Filing it as Reject poisons the rejection
+record the same way an already-implemented idea does: a later reviewer,
+working against a host that has since grown into the condition, reads
+"rejected," concludes the idea was tried and discarded on its merits, and
+never learns it was never evaluated on its merits at all, only on the
+host's size at the time.
+
+**The test**: would the stated reason still hold if the host doubled in
+size or scope? If yes, and the reason is otherwise durable, it is a Reject.
+If no, the mechanism is not-applicable-yet, not rejected.
+
 ## Why three verdicts are not enough
 
 An earlier version of this ladder had three verdicts: rule, skill, reject.

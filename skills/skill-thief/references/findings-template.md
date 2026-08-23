@@ -48,6 +48,16 @@ version already lives, and states briefly why it is stronger. This list
 exists to stop a well-known mechanism from displacing a better local one
 purely because it arrived with a bigger name attached.
 
+## The not-applicable-yet list
+
+Mechanisms whose relevance depends on a scale or shape the host does not
+currently have, per `references/granularity-ladder.md`'s test (would the
+reason still hold if the host doubled in size or scope). Each entry names
+the mechanism and states the condition the host would need to meet before
+it becomes a live finding. These are not Reject entries: recording one in
+the rejection record would poison it for the version of the host where the
+mechanism would actually apply.
+
 ## Evidence of absence, per finding
 
 For every finding in the gate table whose verdict depends on the host

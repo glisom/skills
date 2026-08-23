@@ -76,16 +76,24 @@ establishes absence, using the evidence-of-absence section of
 no command and no output is not ready for the gate, no matter how confident
 the description reads.
 
-This phase also produces the already-stronger list as an output in its own
-right, not a byproduct of the search: places where the host already has
-something better than the source's version. That list is what stops a
-well-known mechanism from displacing a better local one on reputation alone.
+This phase also produces two outputs in their own right, not a byproduct of
+the search. The already-stronger list records places where the host already
+has something better than the source's version, which stops a well-known
+mechanism from displacing a better local one on reputation alone. The
+not-applicable-yet list records mechanisms whose relevance depends on a
+scale or shape the host does not currently have; see
+`references/granularity-ladder.md` for the test that tells this apart from
+a Reject.
 
 ## Phase 4: classify
 
-Give every extracted mechanism exactly one verdict, resolving its target through the Phase 0 map.
+Give every extracted mechanism that survived Phase 3 exactly one verdict,
+resolving its target through the Phase 0 map. A mechanism whose relevance
+depends on a scale or shape the host does not currently have is not a
+finding yet, not a Reject; run the not-applicable-yet test before forcing
+one of the four verdicts onto it.
 
-Load `references/granularity-ladder.md` for the four verdicts and their selection criteria. Skipping it collapses the ladder into "add a new skill", which is the outcome this skill exists to prevent.
+Load `references/granularity-ladder.md` for the four verdicts, their selection criteria, and that test. Skipping it collapses the ladder into "add a new skill", which is the outcome this skill exists to prevent.
 
 ## Phase 5: one approval gate
 

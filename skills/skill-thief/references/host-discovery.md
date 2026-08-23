@@ -27,8 +27,9 @@ For each of the four verdicts on the granularity ladder (absorb as a rule,
 mint a new skill, harden a gate, reject), name the specific file or
 directory in this host where that verdict would land, using what the
 inventory above actually turned up. A host with a conventions doc points
-"absorb as a rule" at that doc; a host with no rejection record still names
-where one would go if the first Reject is approved, without creating it yet.
+"absorb as a rule" at that doc. A host with no rejection record has no
+target to name yet; see "When a surface is absent" below for how to record
+that without inventing one.
 
 Show this map before reading the source material. A wrong guess here is
 cheap to correct at this point. The same wrong guess discovered after the
@@ -48,8 +49,12 @@ noise added to someone else's project rather than a considered change.
 
 If the inventory turns up no conventions doc, no rejection record, or no
 equivalent for any checklist item, report that absence directly in the
-verdict-target map (for example, "no rejection record found; Reject
-verdicts would need one created here"). Never invent a location for a
-surface that is not there. An invented path looks like a finding and reads
-as one at the approval gate, but nothing backs it, and whoever approves the
-map is now approving a location that does not exist.
+verdict-target map (for example, "no rejection record found") and stop
+there. Never invent a location for a surface that is not there, and never
+propose a specific new path as a stand-in, even one labeled "not yet
+created." An invented path looks like a finding and reads as one at the
+approval gate, but nothing backs it, and whoever approves the map is now
+approving a location that does not exist. If a verdict needing that kind of
+surface is later approved at the gate, Phase 6 decides the actual location
+then, using whatever directory conventions this host has at that time, not
+a guess made before the source was even read.
