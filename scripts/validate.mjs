@@ -73,7 +73,52 @@ export function checkTestsExist(root = ROOT) {
   return errors;
 }
 
-const CHECKS = [checkManifests, checkTestsExist];
+export const SKILL_NAME = 'skill-thief';
+const DESCRIPTION_MAX = 1024;
+
+export function parseFrontmatter(source) {
+  if (!source.startsWith('---\n')) return null;
+  const end = source.indexOf('\n---', 3);
+  if (end === -1) return null;
+  const fields = {};
+  for (const line of source.slice(4, end).split('\n')) {
+    const match = line.match(/^([a-z][a-z0-9_-]*):\s*(.*)$/);
+    if (match) fields[match[1]] = match[2].trim();
+  }
+  return fields;
+}
+
+function unquote(value) {
+  const trimmed = value.trim();
+  if (trimmed.length >= 2 && /^(".*"|'.*')$/s.test(trimmed)) return trimmed.slice(1, -1);
+  return trimmed;
+}
+
+export function checkSkill(root = ROOT) {
+  const errors = [];
+  const file = join(root, 'skills', SKILL_NAME, 'SKILL.md');
+  if (!existsSync(file)) {
+    errors.push(`skills/${SKILL_NAME}/SKILL.md: missing`);
+    return errors;
+  }
+  const fields = parseFrontmatter(readFileSync(file, 'utf8'));
+  if (!fields) {
+    errors.push(`skills/${SKILL_NAME}/SKILL.md: missing or malformed frontmatter`);
+    return errors;
+  }
+  if (fields.name !== SKILL_NAME) {
+    errors.push(`SKILL.md: name "${fields.name}" does not match directory "${SKILL_NAME}"`);
+  }
+  const description = unquote(fields.description ?? '');
+  if (!description) {
+    errors.push('SKILL.md: empty description');
+  } else if (description.length > DESCRIPTION_MAX) {
+    errors.push(`SKILL.md: description ${description.length} chars, limit ${DESCRIPTION_MAX}`);
+  }
+  return errors;
+}
+
+const CHECKS = [checkManifests, checkTestsExist, checkSkill];
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const errors = CHECKS.flatMap((check) => check());

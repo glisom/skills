@@ -4,6 +4,7 @@ import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { checkManifests, checkTestsExist } from './validate.mjs';
+import { parseFrontmatter, checkSkill } from './validate.mjs';
 
 test('the real repo manifests are valid', () => {
   assert.deepEqual(checkManifests(), []);
@@ -43,4 +44,39 @@ test('a missing test file is reported', () => {
   const errors = checkTestsExist(root);
   assert.equal(errors.length, 1);
   assert.match(errors[0], /test\.mjs/);
+});
+
+test('frontmatter parses single-line key/value pairs', () => {
+  const fm = parseFrontmatter('---\nname: demo\ndescription: "A thing"\n---\n\n# Body\n');
+  assert.equal(fm.name, 'demo');
+  assert.equal(fm.description, '"A thing"');
+});
+
+test('frontmatter returns null when the block is unterminated', () => {
+  assert.equal(parseFrontmatter('---\nname: demo\n\n# Body\n'), null);
+});
+
+test('the real skill passes the frontmatter checks', () => {
+  assert.deepEqual(checkSkill(), []);
+});
+
+test('an over-budget description is reported', () => {
+  const root = mkdtempSync(join(tmpdir(), 'st-'));
+  const dir = join(root, 'skills/skill-thief');
+  mkdirSync(dir, { recursive: true });
+  writeFileSync(
+    join(dir, 'SKILL.md'),
+    `---\nname: skill-thief\ndescription: ${'x'.repeat(1100)}\n---\n\n# Body\n`,
+  );
+  const errors = checkSkill(root);
+  assert.ok(errors.some((e) => /1100 chars/.test(e)));
+});
+
+test('a name that disagrees with the directory is reported', () => {
+  const root = mkdtempSync(join(tmpdir(), 'st-'));
+  const dir = join(root, 'skills/skill-thief');
+  mkdirSync(dir, { recursive: true });
+  writeFileSync(join(dir, 'SKILL.md'), '---\nname: wrong\ndescription: d\n---\n\n# Body\n');
+  const errors = checkSkill(root);
+  assert.ok(errors.some((e) => /"wrong".*"skill-thief"/.test(e)));
 });
