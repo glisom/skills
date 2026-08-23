@@ -17,6 +17,10 @@ Announce at start: which source is being reviewed, and that no changes are writt
 
 ## Phase 0: discover the host
 
+Inventory what this project actually has, then produce a verdict-target map answering, for each of the four verdicts, where it would land here. Show the map before reading the source so a wrong guess is corrected while it is still cheap.
+
+Load `references/host-discovery.md` for the inventory checklist and the on-demand rule for creating verdict homes. Skipping it produces a map that invents locations, and every later verdict inherits that error.
+
 ## Phase 1: pin the source
 
 ## Phase 2: scout for mechanisms, not features
@@ -24,6 +28,10 @@ Announce at start: which source is being reviewed, and that no changes are writt
 ## Phase 3: check the host for prior art
 
 ## Phase 4: classify
+
+Give every extracted mechanism exactly one verdict, resolving its target through the Phase 0 map.
+
+Load `references/granularity-ladder.md` for the four verdicts and their selection criteria. Skipping it collapses the ladder into "add a new skill", which is the outcome this skill exists to prevent.
 
 ## Phase 5: one approval gate
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 export const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -118,7 +118,62 @@ export function checkSkill(root = ROOT) {
   return errors;
 }
 
-const CHECKS = [checkManifests, checkTestsExist, checkSkill];
+const HARNESS_SPECIFIC = [
+  [/\/loop\b/g, 'scheduler token "/loop" is harness-specific'],
+  [/\$\{CLAUDE_[A-Z_]+\}/g, 'unguarded ${CLAUDE_*} variable; use ${CLAUDE_SKILL_DIR:-.}'],
+  [/\.claude\/skills\//g, 'hardcoded .claude/ path; say "your skills directory" instead'],
+];
+
+export function extractRefTokens(source) {
+  const tokens = new Set();
+  for (const m of source.matchAll(/`(references\/[A-Za-z0-9._/-]+)`/g)) tokens.add(m[1]);
+  for (const m of source.matchAll(/\]\((references\/[A-Za-z0-9._/-]+)\)/g)) tokens.add(m[1]);
+  return [...tokens];
+}
+
+function skillMarkdownFiles(root) {
+  const dir = join(root, 'skills', SKILL_NAME);
+  if (!existsSync(dir)) return [];
+  const files = [];
+  const skillFile = join(dir, 'SKILL.md');
+  if (existsSync(skillFile)) files.push(skillFile);
+  const refDir = join(dir, 'references');
+  if (existsSync(refDir)) {
+    for (const entry of readdirSync(refDir)) {
+      if (entry.endsWith('.md')) files.push(join(refDir, entry));
+    }
+  }
+  return files;
+}
+
+export function checkReferences(root = ROOT) {
+  const errors = [];
+  const dir = join(root, 'skills', SKILL_NAME);
+  for (const file of skillMarkdownFiles(root)) {
+    const source = readFileSync(file, 'utf8');
+    for (const token of extractRefTokens(source)) {
+      if (!existsSync(join(dir, token))) {
+        errors.push(`${relative(root, file)}: references "${token}" which does not exist`);
+      }
+    }
+  }
+  return errors;
+}
+
+export function checkNeutrality(root = ROOT) {
+  const errors = [];
+  for (const file of skillMarkdownFiles(root)) {
+    const source = readFileSync(file, 'utf8');
+    for (const [pattern, message] of HARNESS_SPECIFIC) {
+      for (const match of source.matchAll(pattern)) {
+        errors.push(`${relative(root, file)}: ${message} (found "${match[0]}")`);
+      }
+    }
+  }
+  return errors;
+}
+
+const CHECKS = [checkManifests, checkTestsExist, checkSkill, checkReferences, checkNeutrality];
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const errors = CHECKS.flatMap((check) => check());

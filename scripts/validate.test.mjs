@@ -80,3 +80,42 @@ test('a name that disagrees with the directory is reported', () => {
   const errors = checkSkill(root);
   assert.ok(errors.some((e) => /"wrong".*"skill-thief"/.test(e)));
 });
+
+import { extractRefTokens, checkReferences, checkNeutrality } from './validate.mjs';
+
+test('reference tokens are found in both backtick and link form', () => {
+  const source = 'Load `references/a.md` and then [the ladder](references/b.md).';
+  assert.deepEqual(extractRefTokens(source).sort(), ['references/a.md', 'references/b.md']);
+});
+
+test('reference tokens are deduplicated', () => {
+  const source = '`references/a.md` again `references/a.md`';
+  assert.deepEqual(extractRefTokens(source), ['references/a.md']);
+});
+
+test('the real skill has no dangling references', () => {
+  assert.deepEqual(checkReferences(), []);
+});
+
+test('a dangling reference is reported', () => {
+  const root = mkdtempSync(join(tmpdir(), 'st-'));
+  const dir = join(root, 'skills/skill-thief');
+  mkdirSync(dir, { recursive: true });
+  writeFileSync(join(dir, 'SKILL.md'), 'Load `references/gone.md` first.\n');
+  const errors = checkReferences(root);
+  assert.equal(errors.length, 1);
+  assert.match(errors[0], /references\/gone\.md/);
+});
+
+test('the real skill body is harness neutral', () => {
+  assert.deepEqual(checkNeutrality(), []);
+});
+
+test('harness-specific tokens in the body are reported', () => {
+  const root = mkdtempSync(join(tmpdir(), 'st-'));
+  const dir = join(root, 'skills/skill-thief');
+  mkdirSync(dir, { recursive: true });
+  writeFileSync(join(dir, 'SKILL.md'), 'Run /loop 10m and read ${CLAUDE_SKILL_DIR}/x and .claude/skills/y.\n');
+  const errors = checkNeutrality(root);
+  assert.equal(errors.length, 3);
+});
