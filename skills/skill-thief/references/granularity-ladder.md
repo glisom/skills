@@ -74,9 +74,17 @@ working against a host that has since grown into the condition, reads
 never learns it was never evaluated on its merits at all, only on the
 host's size at the time.
 
-**The test**: would the stated reason still hold if the host doubled in
-size or scope? If yes, and the reason is otherwise durable, it is a Reject.
-If no, the mechanism is not-applicable-yet, not rejected.
+**The test**: would the stated reason still hold if the host grew, meaning
+it doubled in size or scope, and if the host changed shape, meaning it took
+on a form it does not currently have (gained a web frontend where it has
+none today, shipped a second skill, added a plugin surface it does not yet
+have)? A reason that only holds against the host's current shape, for
+example "the host has no web frontend," survives doubling and would pass a
+growth-only test, but it is exactly the kind of scale-and-shape deferral
+this section exists to catch. If the reason would still hold under both
+growth and a change of shape, and it is otherwise durable, it is a Reject.
+If it would stop holding under either one, the mechanism is
+not-applicable-yet, not rejected.
 
 ## Why three verdicts are not enough
 

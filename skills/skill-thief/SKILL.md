@@ -19,7 +19,7 @@ Announce at start: which source is being reviewed, and that no changes are writt
 
 Inventory what this project actually has, then produce a verdict-target map answering, for each of the four verdicts, where it would land here. Show the map before reading the source so a wrong guess is corrected while it is still cheap.
 
-Load `references/host-discovery.md` for the inventory checklist and the on-demand rule for creating verdict homes. Skipping it produces a map that invents locations, and every later verdict inherits that error.
+Load `references/host-discovery.md` for the inventory checklist and the on-demand rule for creating verdict homes. Skipping it produces a map that invents locations, and every later verdict inherits that error. The inventory also looks for a prior findings document from an earlier run of this skill against the same source; finding one (or confirming there isn't one) is what makes the re-run behavior below possible.
 
 ## Phase 1: pin the source
 
@@ -81,19 +81,21 @@ the search. The already-stronger list records places where the host already
 has something better than the source's version, which stops a well-known
 mechanism from displacing a better local one on reputation alone. The
 not-applicable-yet list records mechanisms whose relevance depends on a
-scale or shape the host does not currently have; see
-`references/granularity-ladder.md` for the test that tells this apart from
-a Reject.
+scale or shape the host does not currently have. This phase is where that
+call gets made: run the test in `references/granularity-ladder.md` here,
+before Phase 4, so a scale- or shape-dependent mechanism is sorted out
+before it ever reaches the ladder.
 
 ## Phase 4: classify
 
 Give every extracted mechanism that survived Phase 3 exactly one verdict,
-resolving its target through the Phase 0 map. A mechanism whose relevance
-depends on a scale or shape the host does not currently have is not a
-finding yet, not a Reject; run the not-applicable-yet test before forcing
-one of the four verdicts onto it.
+resolving its target through the Phase 0 map. Phase 3 already decided
+whether a mechanism's relevance depends on a scale or shape the host does
+not currently have and sorted anything that does onto the not-applicable-yet
+list; nothing on that list reaches this phase, and that test does not
+re-run here.
 
-Load `references/granularity-ladder.md` for the four verdicts, their selection criteria, and that test. Skipping it collapses the ladder into "add a new skill", which is the outcome this skill exists to prevent.
+Load `references/granularity-ladder.md` for the four verdicts and their selection criteria. Skipping it collapses the ladder into "add a new skill", which is the outcome this skill exists to prevent.
 
 ## Phase 5: one approval gate
 
@@ -122,13 +124,22 @@ success generically; a report that says "validation passed" without naming
 the command and its output is not distinguishable from a report that skipped
 validation entirely.
 
+Persist the findings document from Phase 5 to its home, resolved through the
+Phase 0 map the same way any other verdict home resolves: reuse the location
+Phase 0 found if a prior findings document already existed, or create one on
+demand, at the location Phase 0 named as absent, if this is a first run.
+Nothing about this home is scaffolded before this step; a run that stops at
+Phase 5 because the user approved nothing still writes nothing here.
+
 ## Re-run behavior
 
 Re-running against a source that already has a findings document enters diff
-mode: read the prior findings document, resolve the source's current
-version, and report only what changed since the version pinned in that prior
-document. A re-run is not a fresh Phase 0 through Phase 6 pass; it is scoped
-to the delta.
+mode: read the prior findings document Phase 0's inventory located, resolve
+the source's current version, and report only what changed since the
+version pinned in that prior document. A re-run is not a fresh Phase 0
+through Phase 6 pass; it is scoped to the delta. If Phase 0's inventory
+finds no prior findings document for this source, there is nothing to diff
+against and this is a first run, not a re-run.
 
 ## Stop conditions
 

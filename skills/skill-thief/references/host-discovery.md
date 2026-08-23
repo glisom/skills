@@ -20,6 +20,7 @@ surfaces. Absence is a valid answer; a guess is not.
 - Any conventions or pitfalls document
 - Any rejection record
 - Any notes directory
+- Any existing findings document, or the directory that holds them
 
 ## Building the verdict-target map
 
@@ -35,6 +36,18 @@ Show this map before reading the source material. A wrong guess here is
 cheap to correct at this point. The same wrong guess discovered after the
 approval gate means every mechanism already classified against it has to be
 re-checked.
+
+## Locating the findings document
+
+The inventory also determines whether a prior findings document already
+exists, since `SKILL.md`'s re-run behavior depends on finding it. If the
+inventory turns up one, name it in the map the same way an existing
+conventions doc becomes the target for "absorb as a rule": that document (or
+the directory holding several) is where this run reads the prior findings
+from and where a new one belongs. If none exists, report the absence in the
+map and propose no path, exactly as any other absent surface below; a first
+run has nothing to diff against, and Phase 6 decides where to create a new
+findings document only if and when this run actually needs to write one.
 
 ## The on-demand rule
 

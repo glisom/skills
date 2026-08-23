@@ -67,6 +67,10 @@ tool and the part that is hardest to re-derive.
 | **Harden a gate** | The mechanism is a check, not prose. Its value is that it fails a build. | A validation script or test tier |
 | **Reject** | There is a durable, concept-level reason not to adopt it. | The rejection record |
 
+Implementation added two Phase 3 exits, already-stronger and
+not-applicable-yet, that let a mechanism leave the review before any of the
+four verdicts above is assigned; see `skills/skill-thief/references/granularity-ladder.md`.
+
 The default is deliberately the cheapest verdict. Minting a skill is the
 expensive outcome: it consumes description budget in every future session and
 competes for routing with everything already installed. The ladder's bias

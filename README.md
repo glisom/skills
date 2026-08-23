@@ -50,8 +50,7 @@ independent trigger, not by being useful.
 /plugin install skill-thief
 ```
 
-Note: this repository is currently private, so the marketplace command above
-works only for the owner until it is made public.
+> **Private repo notice, delete this line when the repository is made public:** the marketplace command above works only for the owner until then.
 
 ## Install (other harnesses)
 
@@ -112,10 +111,16 @@ node --test
 node scripts/validate.mjs
 ```
 
-The first runs the test suite (21 tests). The second runs the same
-zero-dependency validator the skill itself relies on at Phase 6: manifest
-integrity, skill frontmatter budgets, reference-path integrity, and harness
-neutrality.
+The first runs the test suite, covering manifest integrity, skill
+frontmatter budgets, reference-path integrity, and harness neutrality. The
+second runs this repository's own zero-dependency validator against those
+same surfaces. This is a development-time gate on this repo; it is not what
+Phase 6 runs, which is whatever validation Phase 0 discovered the host
+being reviewed already has, a different repo and a different validator each
+time skill-thief runs.
+
+CI runs both `node --test` and `node scripts/validate.mjs` on every push and
+pull request; see `.github/workflows/ci.yml`.
 
 ## License
 
