@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -51,7 +51,29 @@ export function checkManifests(root = ROOT) {
   return errors;
 }
 
-const CHECKS = [checkManifests];
+export function checkTestsExist(root = ROOT) {
+  const errors = [];
+  const scriptsDir = join(root, 'scripts');
+
+  if (!existsSync(scriptsDir)) {
+    errors.push('scripts/: missing');
+    return errors;
+  }
+
+  try {
+    const files = readdirSync(scriptsDir);
+    const hasTestFile = files.some((file) => file.endsWith('.test.mjs'));
+    if (!hasTestFile) {
+      errors.push('scripts/: no *.test.mjs files found');
+    }
+  } catch (error) {
+    errors.push(`scripts/: cannot read directory (${error.message})`);
+  }
+
+  return errors;
+}
+
+const CHECKS = [checkManifests, checkTestsExist];
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const errors = CHECKS.flatMap((check) => check());
