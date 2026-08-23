@@ -119,3 +119,52 @@ test('harness-specific tokens in the body are reported', () => {
   const errors = checkNeutrality(root);
   assert.equal(errors.length, 3);
 });
+
+test('a titled link is extracted with only the target captured', () => {
+  const source = 'See [the ladder](references/granularity-ladder.md "Ladder") for more.';
+  assert.deepEqual(extractRefTokens(source), ['references/granularity-ladder.md']);
+});
+
+test('a titled link pointing at a missing file is reported', () => {
+  const root = mkdtempSync(join(tmpdir(), 'st-'));
+  const dir = join(root, 'skills/skill-thief');
+  mkdirSync(dir, { recursive: true });
+  writeFileSync(join(dir, 'SKILL.md'), 'See [it](references/gone.md "Title") for detail.\n');
+  const errors = checkReferences(root);
+  assert.equal(errors.length, 1);
+  assert.match(errors[0], /references\/gone\.md/);
+});
+
+test('a fragment-suffixed token validates against the file part', () => {
+  const root = mkdtempSync(join(tmpdir(), 'st-'));
+  const dir = join(root, 'skills/skill-thief');
+  const refDir = join(dir, 'references');
+  mkdirSync(refDir, { recursive: true });
+  writeFileSync(join(refDir, 'host-discovery.md'), '# doc\n');
+  writeFileSync(join(dir, 'SKILL.md'), 'Load `references/host-discovery.md#inventory` first.\n');
+  const errors = checkReferences(root);
+  assert.deepEqual(errors, []);
+});
+
+test('a fragment-suffixed token pointing at a missing file is reported', () => {
+  const root = mkdtempSync(join(tmpdir(), 'st-'));
+  const dir = join(root, 'skills/skill-thief');
+  mkdirSync(dir, { recursive: true });
+  writeFileSync(join(dir, 'SKILL.md'), 'Load `references/gone.md#inventory` first.\n');
+  const errors = checkReferences(root);
+  assert.equal(errors.length, 1);
+  assert.match(errors[0], /references\/gone\.md/);
+});
+
+test('a ../ token that escapes the skill directory is reported even when the target exists', () => {
+  const root = mkdtempSync(join(tmpdir(), 'st-'));
+  const dir = join(root, 'skills/skill-thief');
+  mkdirSync(dir, { recursive: true });
+  // references/../.. from skills/skill-thief resolves to skills/elsewhere.md, outside the skill dir.
+  mkdirSync(join(root, 'skills'), { recursive: true });
+  writeFileSync(join(root, 'skills', 'elsewhere.md'), '# elsewhere\n');
+  writeFileSync(join(dir, 'SKILL.md'), 'Load `references/../../elsewhere.md` first.\n');
+  const errors = checkReferences(root);
+  assert.equal(errors.length, 1);
+  assert.match(errors[0], /escapes the skill directory/);
+});

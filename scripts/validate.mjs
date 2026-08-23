@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
-import { dirname, join, relative, resolve } from 'node:path';
+import { dirname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 export const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -124,10 +124,26 @@ const HARNESS_SPECIFIC = [
   [/\.claude\/skills\//g, 'hardcoded .claude/ path; say "your skills directory" instead'],
 ];
 
+function stripFragmentAndQuery(token) {
+  return token.split(/[#?]/)[0];
+}
+
 export function extractRefTokens(source) {
   const tokens = new Set();
-  for (const m of source.matchAll(/`(references\/[A-Za-z0-9._/-]+)`/g)) tokens.add(m[1]);
-  for (const m of source.matchAll(/\]\((references\/[A-Za-z0-9._/-]+)\)/g)) tokens.add(m[1]);
+  const TOKEN_CHARS = /references\/[A-Za-z0-9._/#?-]+/;
+  for (const m of source.matchAll(new RegExp('`(' + TOKEN_CHARS.source + ')`', 'g'))) {
+    const token = stripFragmentAndQuery(m[1]);
+    if (token) tokens.add(token);
+  }
+  // Link target, optionally followed by a "title" or 'title' before the closing paren.
+  const linkPattern = new RegExp(
+    '\\]\\((' + TOKEN_CHARS.source + ')(?:\\s+(?:"[^"]*"|\'[^\']*\'))?\\)',
+    'g',
+  );
+  for (const m of source.matchAll(linkPattern)) {
+    const token = stripFragmentAndQuery(m[1]);
+    if (token) tokens.add(token);
+  }
   return [...tokens];
 }
 
@@ -152,7 +168,13 @@ export function checkReferences(root = ROOT) {
   for (const file of skillMarkdownFiles(root)) {
     const source = readFileSync(file, 'utf8');
     for (const token of extractRefTokens(source)) {
-      if (!existsSync(join(dir, token))) {
+      const resolved = join(dir, token);
+      const rel = relative(dir, resolved);
+      if (rel === '..' || rel.startsWith(`..${sep}`)) {
+        errors.push(`${relative(root, file)}: references "${token}" which escapes the skill directory`);
+        continue;
+      }
+      if (!existsSync(resolved)) {
         errors.push(`${relative(root, file)}: references "${token}" which does not exist`);
       }
     }
