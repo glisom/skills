@@ -81,7 +81,7 @@ test('a missing plugin.json is reported rather than thrown', () => {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `cd ~/Developer/skill-thief && node --test scripts/`
+Run: `cd ~/Developer/skill-thief && node --test`
 Expected: FAIL with `Cannot find module` for `./validate.mjs`.
 
 - [ ] **Step 3: Write minimal implementation**
@@ -197,7 +197,7 @@ Create `package.json`:
   "description": "Steal the ideas, not the install.",
   "license": "MIT",
   "scripts": {
-    "test": "node --test scripts/",
+    "test": "node --test",
     "validate": "node scripts/validate.mjs"
   }
 }
@@ -216,7 +216,7 @@ Create `LICENSE` containing the standard MIT License text with `Copyright (c) 20
 
 - [ ] **Step 5: Run test to verify it passes**
 
-Run: `cd ~/Developer/skill-thief && node --test scripts/ && node scripts/validate.mjs`
+Run: `cd ~/Developer/skill-thief && node --test && node scripts/validate.mjs`
 Expected: 3 tests pass; validator prints `validate: ok` and exits 0.
 
 - [ ] **Step 6: Commit**
@@ -285,7 +285,7 @@ test('a name that disagrees with the directory is reported', () => {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `cd ~/Developer/skill-thief && node --test scripts/`
+Run: `cd ~/Developer/skill-thief && node --test`
 Expected: FAIL with `parseFrontmatter is not a function` (or an import error for the new named exports).
 
 - [ ] **Step 3: Write minimal implementation**
@@ -388,7 +388,7 @@ Announce at start: which source is being reviewed, and that no changes are writt
 
 - [ ] **Step 5: Run test to verify it passes**
 
-Run: `cd ~/Developer/skill-thief && node --test scripts/ && node scripts/validate.mjs`
+Run: `cd ~/Developer/skill-thief && node --test && node scripts/validate.mjs`
 Expected: 8 tests pass; `validate: ok`.
 
 - [ ] **Step 6: Commit**
@@ -463,7 +463,7 @@ test('harness-specific tokens in the body are reported', () => {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `cd ~/Developer/skill-thief && node --test scripts/`
+Run: `cd ~/Developer/skill-thief && node --test`
 Expected: FAIL on the new named imports not being exported.
 
 - [ ] **Step 3: Write minimal implementation**
@@ -557,7 +557,7 @@ Load `references/granularity-ladder.md` for the four verdicts and their selectio
 
 - [ ] **Step 5: Run test to verify it passes**
 
-Run: `cd ~/Developer/skill-thief && node --test scripts/ && node scripts/validate.mjs`
+Run: `cd ~/Developer/skill-thief && node --test && node scripts/validate.mjs`
 Expected: 14 tests pass; `validate: ok`.
 
 - [ ] **Step 6: Verify the gate actually fires**
@@ -620,7 +620,7 @@ Stop conditions must state: stop after Phase 6's validation report; stop at Phas
 
 - [ ] **Step 3: Run test to verify it passes**
 
-Run: `cd ~/Developer/skill-thief && node --test scripts/ && node scripts/validate.mjs`
+Run: `cd ~/Developer/skill-thief && node --test && node scripts/validate.mjs`
 Expected: 14 tests pass; `validate: ok`. The new reference files are covered by `checkReferences` and `checkNeutrality` without new test code.
 
 - [ ] **Step 4: Verify no em dashes and no leaked proprietary names**
@@ -675,7 +675,7 @@ Required sections, in order:
 6. **Usage:** three example invocations covering a repo, a plugin, and a video.
 7. **What it will not do:** the four non-goals from the spec.
 8. **Limitations:** thin host repos weaken the prior-art phase, and verdict quality tracks how much of the host's conventions are written down rather than held in people's heads.
-9. **Development:** `node --test scripts/` and `node scripts/validate.mjs`, noting zero dependencies and Node >= 20.
+9. **Development:** `node --test` and `node scripts/validate.mjs`, noting zero dependencies and Node >= 20.
 10. **License:** MIT.
 
 The README is exempt from the harness-neutrality rule and may name `.claude/skills/` in the install instructions.
@@ -695,7 +695,7 @@ Keep-a-Changelog format. One entry:
 
 ```bash
 cd ~/Developer/skill-thief
-node --test scripts/ && node scripts/validate.mjs
+node --test && node scripts/validate.mjs
 ```
 
 Expected: both succeed, matching what the README's Development section claims. A README that documents a failing command is a defect.
@@ -744,7 +744,7 @@ Write `docs/examples/2026-08-23-dry-run.md` containing the source, its pinned ve
 
 ```bash
 cd ~/Developer/skill-thief
-node --test scripts/ && node scripts/validate.mjs
+node --test && node scripts/validate.mjs
 git add docs/examples/ skills/
 git commit -m "docs: worked dry-run example and prose fixes it exposed"
 git push
