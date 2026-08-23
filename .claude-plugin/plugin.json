@@ -1,0 +1,10 @@
+{
+  "name": "skill-thief",
+  "version": "0.1.0",
+  "description": "Evaluate someone else's agent tooling, extract the mechanisms worth taking, and decide where each one lands in your own setup.",
+  "author": { "name": "Grant Isom", "url": "https://github.com/glisom" },
+  "homepage": "https://github.com/glisom/skill-thief",
+  "repository": "https://github.com/glisom/skill-thief",
+  "license": "MIT",
+  "keywords": ["skills", "agent-tooling", "code-review", "knowledge-management", "plugin"]
+}
