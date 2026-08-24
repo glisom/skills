@@ -50,7 +50,6 @@ independent trigger, not by being useful.
 /plugin install skill-thief
 ```
 
-> **Private repo notice, delete this line when the repository is made public:** the marketplace command above works only for the owner until then.
 
 ## Install (other harnesses)
 
