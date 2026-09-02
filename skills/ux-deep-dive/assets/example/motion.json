@@ -1,0 +1,33 @@
+{
+  "title": "Acme Mobile",
+  "subtitle": "Motion and interaction notes",
+  "intro": "The two things in this app that a screenshot cannot carry: a crash on a gesture, and the one interaction that genuinely works.",
+  "meta": {
+    "companion": "Acme-Mobile-UX-Audit.pdf",
+    "ref": "main @ 0123abc",
+    "date": "2026-09-01",
+    "device": "iPhone 17 Pro, iOS 26.5 simulator",
+    "build": "Debug build",
+    "data": "Synthetic data throughout. No real user data appears in any clip."
+  },
+  "clips": [
+    {
+      "file": "motion/01-map-list-crash.mp4",
+      "sev": "p0",
+      "title": "Results map to list view terminates the app",
+      "where": "app/(stacks)/results/map.tsx, list toggle, top right",
+      "watch": "The map pans normally. One tap on the list toggle and the app is gone, straight to the home screen. No error screen, no recovery.",
+      "detail": "<p>A <b>native</b> crash, not a JavaScript error, so none of the app's own error handling catches it. From the simulator log:</p><pre>*** Terminating app due to uncaught exception 'NSInternalInconsistencyException'</pre><p>Reproduced twice; after each one the process list confirmed the app was gone.</p>",
+      "caveat": "Observed on a debug simulator build. Confirm on a release build before treating it as a shipping defect, and treat it as one until that check is clean."
+    },
+    {
+      "file": "motion/02-live-total.mp4",
+      "sev": "keep",
+      "title": "Estimate builder, live total",
+      "where": "src/features/estimate",
+      "watch": "Toggling items in and out. The total and the priced-count update together, immediately, with no spinner.",
+      "detail": "<p>The recalculation is local, so it feels instant rather than networked, and unpriced items keep showing a dash rather than dropping to zero.</p>"
+    }
+  ],
+  "footer": "Recorded with the simulator's own recorder and transcoded to H.264 at 402px wide. Synthetic data throughout."
+}
