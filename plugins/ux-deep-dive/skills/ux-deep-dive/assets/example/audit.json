@@ -1,0 +1,53 @@
+{
+  "title": "Acme Mobile",
+  "subtitle": "iOS UX Audit",
+  "tagline": "A screen-by-screen walkthrough of the app as it stands today, every route, every state, pre-annotated for markup.",
+  "page": "a4",
+  "meta": {
+    "ref": "main @ 0123abc",
+    "date": "2026-09-01",
+    "device": "iPhone 17 Pro, iOS 26.5 simulator",
+    "build": "Debug build, dev bundle",
+    "data": "Synthetic throughout: the app's review fixture plus a local fixture server. No real user data appears anywhere.",
+    "companion": "motion.html"
+  },
+  "caveat": "Driven on a simulator, in a debug build, against fixture data. Finding B1.1 should be reproduced on a release build before it is treated as a shipping defect, and treated as one until that check is clean.",
+  "sections": [
+    { "id": "A", "title": "Authentication and onboarding", "blurb": "Cold launch to the first authenticated screen: sign-in, recovery, and the gate that stands between a new user and the app." },
+    { "id": "B", "title": "Home", "blurb": "The first tab: the balance, the banners, and what the app chooses to put in front of a user first." }
+  ],
+  "screens": [
+    {
+      "file": "raw/01-auth-login.png",
+      "section": "A",
+      "title": "Sign in",
+      "where": "app/(auth)/login.tsx",
+      "notes": [
+        { "sev": "p3", "x": 50, "y": 46, "text": "The primary action is dimmed until the email parses and a password exists. Nothing says why, so a mistyped address reads as a broken button." },
+        { "sev": "p3", "x": 50, "y": 62, "text": "\"Forgot password?\" is the only recovery route and sits below the fold once the keyboard opens." },
+        { "sev": "keep", "x": 50, "y": 90, "text": "Legal line and account creation are present and legible." }
+      ]
+    },
+    {
+      "file": "raw/02-auth-login-keyboard.png",
+      "section": "A",
+      "title": "Sign in, keyboard up",
+      "where": "Same screen with the software keyboard open",
+      "notes": [
+        { "sev": "p2", "x": 50, "y": 70, "text": "The keyboard covers the recovery link entirely. A user who has forgotten their password has to dismiss the keyboard to find out that recovery exists." }
+      ]
+    },
+    {
+      "file": "raw/03-home.png",
+      "section": "B",
+      "title": "Home",
+      "where": "app/(tabs)/index.tsx",
+      "notes": [
+        { "sev": "p1", "x": 50, "y": 22, "text": "<b>False overdue banner.</b> <code>useGracePeriod</code> unwraps with <code>data?.data ?? data</code>, so the documented <code>{ data: null }</code> reply returns the truthy wrapper and a user in good standing sees \"NaN days remaining\"." },
+        { "sev": "p2", "x": 50, "y": 40, "text": "This card calls the balance <b>Reserve</b>; the account tab calls the same figure <b>Balance</b>. Two names, one concept." },
+        { "sev": "keep", "x": 50, "y": 58, "text": "The balance is the clearest money moment in the app: one big figure with the contribution and the return in one glance." },
+        { "sev": "p3", "x": 50, "y": 84, "text": "\"Next appointment\" shows the provider and the visit type but no date or time." }
+      ]
+    }
+  ]
+}
