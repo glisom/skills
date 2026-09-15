@@ -51,8 +51,8 @@ assembly, not shipped with a hedge.
 ## Install (Claude Code)
 
 ```
-/plugin marketplace add glisom/ux-deep-dive
-/plugin install ux-deep-dive
+/plugin marketplace add glisom/skills
+/plugin install ux-deep-dive@glisom
 ```
 
 ## Install (other harnesses)

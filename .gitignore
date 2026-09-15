@@ -1,0 +1,9 @@
+node_modules/
+.DS_Store
+*.log
+scratch/
+
+# Rendered outputs of the bundled ux-deep-dive example; the inputs are tracked.
+plugins/ux-deep-dive/skills/ux-deep-dive/assets/example/build/
+plugins/ux-deep-dive/skills/ux-deep-dive/assets/example/*.pdf
+plugins/ux-deep-dive/skills/ux-deep-dive/assets/example/motion.html

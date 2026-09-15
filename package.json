@@ -1,9 +1,8 @@
 {
-  "name": "ux-deep-dive",
-  "version": "0.1.0",
+  "name": "skills",
   "private": true,
   "type": "module",
-  "description": "Every screen, every state, one PDF you can mark up.",
+  "description": "Grant Isom's Claude Code plugin marketplace.",
   "license": "MIT",
   "scripts": {
     "test": "node --test",

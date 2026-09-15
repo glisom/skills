@@ -46,8 +46,8 @@ independent trigger, not by being useful.
 ## Install (Claude Code)
 
 ```
-/plugin marketplace add glisom/skill-thief
-/plugin install skill-thief
+/plugin marketplace add glisom/skills
+/plugin install skill-thief@glisom
 ```
 
 

@@ -1,7 +1,0 @@
-node_modules/
-.DS_Store
-*.log
-scratch/
-skills/ux-deep-dive/assets/example/build/
-skills/ux-deep-dive/assets/example/*.pdf
-skills/ux-deep-dive/assets/example/motion.html
