@@ -130,4 +130,4 @@ request; see `.github/workflows/ci.yml`.
 
 ## License
 
-MIT. See [LICENSE](LICENSE).
+MIT. See [LICENSE](../../LICENSE).

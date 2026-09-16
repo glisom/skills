@@ -6,8 +6,10 @@ Grant Isom's Claude Code plugins. One plugin per skill, so you install only what
 
 | Plugin | What it does | Install |
 |---|---|---|
+| [decide](plugins/decide/) | Walk through every open decision one at a time, three options each with one recommended, so the person deciding stays fast and in control. | `/plugin install decide@glisom` |
 | [skill-thief](plugins/skill-thief/) | Evaluate someone else's agent tooling, extract the mechanisms worth taking, and decide where each one lands in your own setup. Steal the ideas, not the install. | `/plugin install skill-thief@glisom` |
 | [ux-deep-dive](plugins/ux-deep-dive/) | Drive every screen of a mobile or web app, capture all of it, and hand back a pre-annotated, markup-ready UX audit. Every screen, every state, one PDF you can mark up. | `/plugin install ux-deep-dive@glisom` |
+| [write-like-grant](plugins/write-like-grant/) | Write or rewrite a message in Grant's personal voice, with the formality dialed to match the reader. A personal skill, kept here as a template for voice skills. | `/plugin install write-like-grant@glisom` |
 
 ## Install
 
@@ -15,8 +17,10 @@ Add the marketplace once, then install the plugins you want. Inside Claude Code:
 
 ```
 /plugin marketplace add glisom/skills
+/plugin install decide@glisom
 /plugin install skill-thief@glisom
 /plugin install ux-deep-dive@glisom
+/plugin install write-like-grant@glisom
 ```
 
 Or from a shell:

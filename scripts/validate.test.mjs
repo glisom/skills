@@ -73,10 +73,10 @@ test('the real repository passes every check', () => {
 });
 
 test('the real repository ships the expected plugins and one skill each', () => {
-  assert.deepEqual(pluginDirs(), ['skill-thief', 'ux-deep-dive']);
+  assert.deepEqual(pluginDirs(), ['decide', 'skill-thief', 'ux-deep-dive', 'write-like-grant']);
   assert.deepEqual(
     skillEntries().map((s) => `${s.plugin}/${s.name}`),
-    ['skill-thief/skill-thief', 'ux-deep-dive/ux-deep-dive'],
+    ['decide/decide', 'skill-thief/skill-thief', 'ux-deep-dive/ux-deep-dive', 'write-like-grant/write-like-grant'],
   );
 });
 
