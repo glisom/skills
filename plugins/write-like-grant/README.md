@@ -32,12 +32,17 @@ Desktop builds one from your own messages.
 /plugin install write-like-grant@glisom
 ```
 
-## Install (other harnesses)
+## Install (Codex, Gemini CLI, and other hosts)
 
-Copy `skills/write-like-grant/` into your agent's skills directory (for Claude
-Code specifically, that is `.claude/skills/`). The skill is a single markdown
-file with no scripts, tool names, or platform paths, so it works as a plain
-copy.
+From the repository root, copy `plugins/write-like-grant/skills/write-like-grant/` in full to
+`~/.agents/skills/write-like-grant/` for Codex or Gemini CLI, or to your host's documented
+skills directory. Include the bundled resources and `LICENSE.txt`. See the
+[root installation guide](../../README.md#install-in-codex-or-gemini-cli) for
+project scope, Windows commands, updates, and duplicate-install handling.
+
+Ask the host to use `write-like-grant` by name. Codex CLI also supports `$write-like-grant`;
+slash-command syntax varies by host. The same instruction files ship in the
+Claude plugin and the standalone folder.
 
 ## Usage
 

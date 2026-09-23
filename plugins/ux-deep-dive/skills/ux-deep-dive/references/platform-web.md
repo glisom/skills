@@ -10,9 +10,12 @@ Two captures per route at the primary size: the viewport (what the user sees bef
 
 ## Bulk capture
 
+Resolve `SKILL_DIR` and set the audit working directory as described in `references/runtime.md`. Install Playwright in that scratch directory; keep the helper in its installed location.
+
 ```bash
 npm i -D playwright && npx playwright install chromium     # once, in a scratch project, not in the app repo
-node assets/web-capture.mjs --base http://localhost:3000 --routes build/routes.txt --out raw \
+python3 "$SKILL_DIR/assets/preflight.py" --platform web
+node "$SKILL_DIR/assets/web-capture.mjs" --base http://localhost:3000 --routes build/routes.txt --out raw \
   --viewport 390x844 --full-page --storage build/state.json --video motion/walk.webm
 ```
 
@@ -54,7 +57,7 @@ ffmpeg -y -i motion/walk.webm -vf "scale=402:-2" -c:v libx264 -preset veryfast -
   -movflags +faststart motion/NN-slug.mp4
 ```
 
-For a single interaction, the harness's browser tool with a recording feature is faster than a script.
+For a single interaction, use the host's browser recording feature when available. If neither it nor Playwright can record, keep still captures and console evidence and label motion coverage unavailable. Without FFmpeg, retain the original WebM and disclose its format; do not claim an MP4 was produced.
 
 ## The crash equivalent
 

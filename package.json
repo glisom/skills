@@ -2,10 +2,18 @@
   "name": "skills",
   "private": true,
   "type": "module",
-  "description": "Grant Isom's Claude Code plugin marketplace.",
+  "description": "Grant Isom's portable Agent Skills, also packaged as Claude Code plugins.",
   "license": "MIT",
   "scripts": {
     "test": "node --test",
+    "test:browser": "node --test scripts/browser-smoke.mjs",
     "validate": "node scripts/validate.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "playwright": "^1.63.0",
+    "yaml": "^2.9.1"
   }
 }

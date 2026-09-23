@@ -270,7 +270,7 @@ def status_chip(note: dict) -> str:
     return f'<span class="status">{esc(s)}</span>' if s else ""
 
 
-def meta_block(meta: dict, companion_default: str = "motion.html") -> str:
+def meta_block(meta: dict) -> str:
     lines = []
     ref = meta.get("ref")
     date = meta.get("date")
@@ -286,7 +286,7 @@ def meta_block(meta: dict, companion_default: str = "motion.html") -> str:
         lines.append(dev)
     if meta.get("data"):
         lines.append(esc(meta["data"]))
-    companion = meta.get("companion", companion_default)
+    companion = meta.get("companion")
     if companion:
         lines.append(f"Motion, transitions, and any crash reproduction are in the companion page: "
                      f"<code>{esc(companion)}</code>")
@@ -466,7 +466,7 @@ def to_pdf(html_path: Path, out_pdf: Path, chrome: str | None) -> int:
            f"--print-to-pdf={out_pdf}", "--virtual-time-budget=25000", html_path.resolve().as_uri()]
     result = subprocess.run(cmd, capture_output=True, text=True)
     if result.returncode != 0 or not out_pdf.exists():
-        print(f"pdf: render failed ({result.returncode})\n{result.stderr[-2000:]}", file=sys.stderr)
+        print(f"pdf: render failed ({result.returncode})\n{result.stderr}", file=sys.stderr)
         return 1
     pages = count_pdf_pages(out_pdf)
     size_kb = out_pdf.stat().st_size // 1024

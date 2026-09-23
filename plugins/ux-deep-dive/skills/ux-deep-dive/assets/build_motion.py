@@ -112,11 +112,13 @@ def card(clip: dict) -> str:
     label, colour = SEV[sev]
     caveat = f'<p class="caveat">{clip["caveat"]}</p>' if clip.get("caveat") else ""
     where = f'<p class="where">{esc(clip["where"])}</p>' if clip.get("where") else ""
+    media_type = {".mp4": "video/mp4", ".webm": "video/webm", ".mov": "video/quicktime"}.get(Path(clip["file"]).suffix.lower())
+    type_attribute = f' type="{media_type}"' if media_type else ""
     return f"""
 <section class="clip">
   <div class="vid">
     <video controls preload="metadata" playsinline loop>
-      <source src="{esc(clip['file'])}" type="video/mp4">
+      <source src="{esc(clip['file'])}"{type_attribute}>
       Your browser cannot play this clip. It is at <code>{esc(clip['file'])}</code>.
     </video>
   </div>
@@ -135,8 +137,7 @@ def render(data: dict) -> str:
     title = esc(data["title"])
     subtitle = esc(data.get("subtitle", "Motion and interaction notes"))
     intro = esc(data.get("intro", "The things in this app that a screenshot cannot carry."))
-    footer = data.get("footer") or ("Clips were recorded on the same build and device as the screenshots and "
-                                    "transcoded to H.264 at a small size for portability. Synthetic data throughout.")
+    footer = data.get("footer") or "See the audit README for the recording method, file formats, and playback limitations."
     cards = "".join(card(c) for c in data["clips"])
     return f"""<!doctype html>
 <html lang="en"><head><meta charset="utf-8">

@@ -1,13 +1,17 @@
 ---
 name: ux-deep-dive
 description: "Drive every screen of a mobile or web app on a simulator, emulator, or browser, capture all of its routes and states as screenshots and short clips, and hand back a pre-annotated, markup-ready UX audit: a one-screen-per-page PDF with numbered callouts and a severity-ranked findings index, a companion motion page for what a still cannot carry, the raw captures, the fixture data used, and the build blockers hit on the way. Use when someone wants a thorough, evidence-backed UX/UI review of an app as it stands today. Trigger phrases include: UX deep dive, screenshot every screen, walk the whole app, capture 100% of the app, UX audit, review the app's UX, full app walkthrough, annotate every screen, what does the app look like right now, pre-annotate the screenshots."
+license: MIT
+compatibility: Requires source access, image viewing, UI control, and writable output for a live audit. Helpers use Python 3.8+, Node 20+ with Playwright for web capture, Bash with Xcode on macOS or adb for mobile, Chromium for PDF, and ffmpeg for motion. See references/runtime.md for partial-output fallbacks.
 ---
 
 # ux-deep-dive
 
 Every screen, every state, one PDF you can mark up.
 
-Announce at start: which app and which ref will be audited, on which device or browser, where the deliverable folder will be written, and that the repository will be restored to exactly its starting state when the run ends.
+Announce at start: which app and which ref or workspace snapshot will be audited, on which device or browser, where the deliverable will be written, and any capability limits. Preserve the starting workspace and restore only temporary changes made by this run.
+
+Load `references/runtime.md` before starting. Resolve bundled files from this skill file's location, select tools by available capabilities, and check dependencies. The installed skill folder is a resource directory; all audit output belongs in a separate writable location.
 
 ## What this is not
 
@@ -25,24 +29,25 @@ Load `references/severity-ladder.md` for the five tags and what each one require
 
 ## Phase 0: pin the build
 
-1. Find the app in the workspace and read whatever the repository already says about standing it up: a contributing guide, an environment file, an existing verification skill.
-2. Fetch before anything else. A local checkout goes stale fast, and an audit of last month's tree is an audit of nothing.
-3. If the working tree is dirty, stash it under a dated, named stash (`pre-uxdd-<date>: <what it was>`) and record the branch you left. The user's work in progress is not yours to lose; the stash is popped in Phase 7.
-4. Check out the requested ref (default: the default branch, pulled fast-forward only) and record the identity block: app name, ref and short SHA, date, device or browser with OS version, build configuration, and the data source the screens will render from. This block goes on the PDF cover, in the README, and in the motion page header, verbatim.
+1. Find the app and read its startup instructions. Record the starting commit, branch or detached HEAD, worktree status including untracked files, and whether the checkout is managed, read-only, or offline.
+2. Audit the requested ref; with no requested ref, audit the current checkout. A request to audit current work includes its uncommitted changes. Record the base SHA plus a diff and content hashes or a snapshot of relevant untracked inputs in `build/`; label this a dirty workspace snapshot, not a clean commit.
+3. Refresh remote refs only when the user requests a newer build and network access is available. For a different ref, prefer a separate checkout or worktree supported by the host. Keep the user's current checkout in place. When the requested ref is unavailable offline or cannot be opened in this environment, report the blocker and get a choice before substituting a different build.
+4. Do not stash or switch the original workspace as part of this procedure. Managed worktrees and detached HEAD are valid audit inputs. For a source snapshot without Git metadata, record its supplied version plus a content fingerprint and say that a commit SHA is unavailable.
+5. Write the identity block: app, exact ref or snapshot identity, date, device/browser and OS, build configuration, and data source. Use it verbatim in each deliverable.
 
-Never audit an unpinned build. A finding that cannot say which commit it was observed on cannot be re-checked, and cannot be diffed on a re-run.
+Pin the actual input, not just a branch label. A finding must identify the build or snapshot it came from so a re-run can distinguish code changes from environment changes.
 
 ## Phase 1: stand up the environment
 
 Load `references/environment-ladder.md`. It decides where the data on screen comes from, in order of preference: the app's own mock or demo mode, a real backend that starts with one command, or a dependency-free fixture server whose response shapes are taken from the app's own types and hooks. Synthetic data only, on every path; label it as sample data wherever the app will show it. Skipping the ladder produces a fixture built from guesses, and every guess becomes a finding you later retract.
 
-Start the long-pole build (native compile, dependency install) in the background first, then investigate the backend while it runs. Waiting on a build with nothing else in flight is the most expensive idle time in the run.
+When process execution is available, start the long-pole build first and investigate the backend while it runs. Use background execution only when the host can track completion and retrieve logs; otherwise run the build sequentially. In a read-only checkout, use an existing runnable build or a writable isolated copy. Record unavailable build capabilities as limits instead of attempting forbidden writes.
 
-Turn every feature flag on. A flag-gated surface that is never rendered is a screen the audit silently missed.
+Exercise feature flags in the isolated audit environment where configuration is writable. Record unavailable flag-gated surfaces in the coverage gaps. A restricted environment does not justify changing the original checkout.
 
 Every blocker hit while standing the app up is a developer-experience finding, recorded as it happens with the exact error and the exact fix, in its own document, separate from the UX findings. See the `findings-dev.md` section of `references/deliverable-spec.md`.
 
-If the app cannot be launched after the blockers are recorded, the deliverable is the DX document alone. Report that plainly and stop; never invent screens.
+If the app cannot be launched or controlled after the blockers are recorded, the deliverable is the DX document alone. Report that plainly, perform Phase 7 cleanup, and stop; never invent screens.
 
 ## Phase 2: calibrate the capture rig
 
@@ -78,11 +83,11 @@ Prefer deep links to reach screens once the tab-level flows have been walked by 
 
 ## Phase 5: record what a still cannot carry
 
-Some findings are motion: a crash on a gesture, a map that pans, a total that updates live, a tab transition, a refresh. For each one, record a short clip of only that behavior, transcode it small, and write a one-line "what to watch" so a reader knows what the clip proves before it plays. Four to six clips is typical. The platform reference has the record and transcode commands; `assets/record.sh` wraps them for a simulator or emulator.
+Some findings are motion: a crash on a gesture, a map that pans, a total that updates live, a tab transition, a refresh. When recording is available, record only that behavior and write a one-line "what to watch". Transcode when FFmpeg is available; otherwise retain the original clip and label its format/playback limitation. When recording is unavailable, retain observed stills and logs, record the missing motion evidence, and omit the clip and motion page when no clips exist. Keep the severity evidence requirements: a missing recording never licenses an unsupported finding. The platform reference has the commands; invoke `assets/record.sh` through Bash using the resolved skill directory.
 
 ## Phase 6: assemble the deliverable
 
-Load `references/deliverable-spec.md`. Skipping it produces a folder whose files each look fine and which nobody can navigate. The layout is fixed:
+Load `references/deliverable-spec.md`. It defines the complete bundle and the reduced deliverables selected by `references/runtime.md`. The full-capability layout is:
 
 ```
 <App>-UX-Audit-<date>/
@@ -95,16 +100,16 @@ Load `references/deliverable-spec.md`. Skipping it produces a folder whose files
   build/                 audit.json, motion.json, inventory.md, the fixture server, the PDF source
 ```
 
-Build the PDF with `assets/build_audit.py` and the motion page with `assets/build_motion.py`, then open the PDF and look at it. Check the cover, a divider, three screen pages, and the index. A capture that carries a dev artifact (a toast, a debugger banner, a mistyped field) is recaptured and the PDF rebuilt; it is never shipped with a note explaining the artifact.
+Run the builders through Python using the absolute paths from `references/runtime.md`. Generate PDF when a renderer is available; otherwise keep the annotated HTML and its images. With no script execution, produce a Markdown walkthrough and the available captures. Build the motion page only when clips exist. Visually inspect the delivered format: cover, a divider, three screen pages, and the index where present. If the host cannot view that format, validate its structure and explicitly mark visual QA incomplete. Recapture dev artifacts introduced by this run and rebuild; record anything that could not be recaptured as a coverage limitation.
 
 Write the README last, from the finished index, not from memory.
 
 ## Phase 7: restore and hand off
 
-1. Revert every temporary change made for clean captures (an overlay suppressed, a fixture URL, a flag). Grep the tree for the marker you left on each one.
-2. Return to the branch recorded in Phase 0 and pop the stash. Confirm the working tree matches what Phase 0 recorded, and say so with the output.
+1. Run this cleanup on success, failure, or early stop. Revert only temporary changes recorded as this run's own changes. Preserve pre-existing and concurrent user edits.
+2. Compare the original checkout with the starting status and identity. Do not reset, switch branches, pop a stash, or delete files to force a match. Remove an isolated audit checkout only if this run created it and it contains no work that needs preserving. Report any unresolved cleanup precisely.
 3. State which processes are still running (a dev server, a fixture server, a simulator) and the exact command that stops each. Leaving them up is fine; leaving them unmentioned is not.
-4. Package for the recipient: an archive whose root folder name is plain ASCII and matches the archive name, without duplicate image sets, verified by a round-trip extract. Note the size against the limit of wherever it is going.
+4. Package the available deliverables using `references/deliverable-spec.md`. Keep annotated HTML and its images when PDF is absent. If archive tools are available, use a plain ASCII root folder matching the archive name and verify a round-trip extract. Otherwise hand off the folder or host-supported artifacts and state that no archive was produced.
 5. Hand off with the identity block, the coverage totals, the count per tag, the handful of findings that matter most, and the path to the folder.
 
 ## Re-run behavior
@@ -113,7 +118,7 @@ If a prior audit folder for the same app exists, load its `build/audit.json` and
 
 ## Stop conditions
 
-- Stop at Phase 1 if the app cannot be launched after the blockers are recorded. Ship the DX document, report, and stop.
+- Stop at Phase 1 if the app cannot be launched or controlled after blockers are recorded. Perform Phase 7 cleanup, ship the DX document, and stop.
 - Never record a finding without its evidence. A note with neither a reproduced observation nor a cited line is deleted before assembly, not shipped with a hedge.
-- Never end a run with the user's stash unpopped or a temporary change still in the tree.
+- Every exit runs Phase 7 cleanup. Report any temporary change that could not be safely restored; never discard user work to make the tree look clean.
 - Stop after the Phase 7 hand-off. Fixing what was found is a different run with a different mandate.

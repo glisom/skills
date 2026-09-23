@@ -6,17 +6,37 @@ on:
 
 jobs:
   test:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - run: npm ci
+      - run: npm test
+      - run: npm run validate
+
+  browser:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: lts/*
+          node-version: "20"
       - uses: actions/setup-python@v5
         with:
           python-version: "3.x"
-      - run: node --test
-      - run: node scripts/validate.mjs
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      # Ubuntu's AppArmor policy permits the installed Chrome sandbox. Downloaded
+      # Chromium builds cannot use it without additional host configuration.
+      - run: CHROME_BIN="$(command -v google-chrome)" npm run test:browser
 
   manifests:
     # The official manifest check, so a schema change upstream fails here first.

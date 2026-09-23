@@ -2,35 +2,35 @@
   "name": "glisom",
   "owner": { "name": "Grant Isom", "url": "https://github.com/glisom" },
   "metadata": {
-    "description": "Grant Isom's Claude Code plugins. One plugin per skill, each installable on its own.",
-    "version": "1.1.0"
+    "description": "Grant Isom's portable Agent Skills, also available as individually installable Claude Code plugins.",
+    "version": "1.1.1"
   },
   "plugins": [
     {
       "name": "decide",
       "source": "./plugins/decide",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "description": "Walk through every open decision one at a time, three options each with one recommended, so the person deciding stays fast and in control.",
       "keywords": ["decisions", "workflow", "questions", "planning", "plugin"]
     },
     {
       "name": "skill-thief",
       "source": "./plugins/skill-thief",
-      "version": "0.1.1",
+      "version": "0.1.2",
       "description": "Evaluate someone else's agent tooling, extract the mechanisms worth taking, and decide where each one lands in your own setup.",
       "keywords": ["skills", "agent-tooling", "code-review", "knowledge-management", "plugin"]
     },
     {
       "name": "ux-deep-dive",
       "source": "./plugins/ux-deep-dive",
-      "version": "0.1.1",
+      "version": "0.1.2",
       "description": "Drive every screen of a mobile or web app, capture all of it, and hand back a pre-annotated, markup-ready UX audit: a PDF, a motion page, the raw captures, the fixture used, and the build blockers hit on the way.",
       "keywords": ["ux", "audit", "screenshots", "mobile", "ios", "android", "web", "simulator", "plugin"]
     },
     {
       "name": "write-like-grant",
       "source": "./plugins/write-like-grant",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "description": "Write or rewrite a message in Grant Isom's personal voice: warm, upbeat, concise, and a little playful, with the formality dialed to match the reader.",
       "keywords": ["voice", "writing", "email", "messaging", "tone", "personal", "plugin"]
     }

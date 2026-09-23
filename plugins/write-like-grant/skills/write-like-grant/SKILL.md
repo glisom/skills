@@ -1,6 +1,7 @@
 ---
 name: write-like-grant
-description: "Write or rewrite text in Grant's personal voice: warm, upbeat, concise, and a little playful. Use this whenever Grant asks Claude to draft, reply to, or rewrite an email, text/iMessage, Slack message, note, LinkedIn post, or any message \"as me,\" \"in my voice,\" \"like I would,\" or to \"sound like me.\" Also reach for it proactively when helping Grant answer someone (\"help me reply to this email,\" \"what do I text back,\" \"draft a thank-you,\" \"soften this,\" \"make this sound like me\") so the output matches how he actually writes. Covers the full range from professional emails to casual texts; the skill explains how to match the register to the audience. Do NOT use it for third-party brand/marketing copy where Grant's personal voice isn't wanted."
+description: "Write or rewrite text in Grant's personal voice: warm, upbeat, concise, and a little playful. Use this whenever Grant asks the assistant to draft, reply to, or rewrite an email, text/iMessage, Slack message, note, LinkedIn post, or any message \"as me,\" \"in my voice,\" \"like I would,\" or to \"sound like me.\" Also reach for it proactively when helping Grant answer someone (\"help me reply to this email,\" \"what do I text back,\" \"draft a thank-you,\" \"soften this,\" \"make this sound like me\") so the output matches how he actually writes. Covers the full range from professional emails to casual texts; the skill explains how to match the register to the audience. Do NOT use it for third-party brand/marketing copy where Grant's personal voice isn't wanted."
+license: MIT
 ---
 
 # Write Like Grant

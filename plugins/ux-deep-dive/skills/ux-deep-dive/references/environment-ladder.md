@@ -28,11 +28,11 @@ Allowed, with the two-pass rule: when rung 1 forces a screen into a state that r
 
 ## Feature flags
 
-Turn every flag on. Grep the config for the flag prefix (`EXPO_PUBLIC_`, `NEXT_PUBLIC_`, `VITE_`, remote-config keys, a flags file) and record the full set you ran with in the identity block. A flag-gated surface that never rendered is a screen the audit silently missed. If two flags conflict, that is another two-pass case.
+Exercise every flag that can be configured in the isolated audit environment. Search the config for the flag prefix (`EXPO_PUBLIC_`, `NEXT_PUBLIC_`, `VITE_`, remote-config keys, a flags file) and record the set used in the identity block. Record flag-gated surfaces that could not be reached as coverage gaps. If two flags conflict, that is another two-pass case. Preserve the original checkout and respect read-only configuration.
 
 ## Order of operations
 
-1. Start the long pole (dependency install, native compile) in the background.
+1. Start the long pole (dependency install, native compile) in the background when the host can track its process and logs; otherwise run it sequentially. With no execution capability, use an existing accessible build or report the blocker.
 2. While it runs, read the API surface the app expects and choose the rung.
 3. Write the fixture or start the backend.
 4. Poll the build. Read its log when it finishes, and read the build's own exit status rather than the exit status of whatever you piped it through. A build that "succeeded" can still have failed a late script phase and produced an app that dies at launch.
@@ -43,6 +43,6 @@ Caches (a key-value store, local storage, an in-app query cache) survive a fixtu
 
 ## Developer-experience findings
 
-Every blocker met on the way to the first capture is a finding in its own right, in `findings-dev.md`, separate from the UX findings and ordered by how much time it cost. Each entry records the symptom verbatim, the root cause, the fix that worked, and, when the failure mode points away from its cause, a sentence saying so. The document ends with the three commands that reproduce the walk. See `references/deliverable-spec.md`.
+Every blocker met on the way to the first capture is a finding in its own right, in `findings-dev.md`, separate from the UX findings and ordered by how much time it cost. Each entry records the symptom verbatim, the confirmed root cause (or "cause unconfirmed"), the fix that worked (or "no working fix found" with attempts and errors), and, when the failure mode points away from its cause, a sentence saying so. The document ends with the three commands that reproduce the walk. See `references/deliverable-spec.md`.
 
-If the app cannot be launched after those entries are written, the DX document is the deliverable. Say so and stop.
+If the app cannot be launched or controlled after those entries are written, the DX document is the deliverable. Perform Phase 7 cleanup, say so, and stop.

@@ -1,6 +1,6 @@
 {
   "name": "decide",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Walk through every open decision one at a time, three options each with one recommended, so the person deciding stays fast and in control.",
   "author": { "name": "Grant Isom", "url": "https://github.com/glisom" },
   "homepage": "https://github.com/glisom/skills/tree/main/plugins/decide",

@@ -1,13 +1,15 @@
 ---
 name: skill-thief
 description: "Evaluate an external agent-tooling source (a repo, a plugin, a video, an article), extract the mechanisms behind its ideas, and decide at what granularity each one should land in this project: as a rule inside an existing skill, as a new skill, as a validation gate, or as a recorded rejection. Use when the user wants to review someone else's setup and take what is worth taking without installing it wholesale. Trigger phrases include: steal from this repo, what should we take from, compare our setup to, review their skills, what can we learn from this plugin, evaluate this tool for ideas, should we adopt this."
+license: MIT
+compatibility: Requires source and repository read/search access. Applying changes requires file editing and the host validation tools. Network access is needed for remote sources; subagents are optional.
 ---
 
 # skill-thief
 
 Steal the ideas, not the install.
 
-Announce at start: which source is being reviewed, and that no changes are written before the approval gate.
+Announce at start: which source is being reviewed, and that no project or agent-configuration changes are written before the approval gate. Scratch evidence may be kept in a separate writable temporary directory; if none is available, keep bounded evidence notes in the conversation.
 
 ## What this is not
 
@@ -54,11 +56,12 @@ Litmus: if you removed the source's name and product entirely, would what
 you wrote still tell you what to build? If it would not, you extracted a
 feature, not a mechanism.
 
-For a large source, use a bounded parallel fan-out: scouts write full
-evidence to scratch and return short summaries, so the orchestrating context
-stays small no matter how big the source is. For a small source, run this
-phase inline; a fan-out for three files is overhead with nothing to show for
-it.
+For a large source, divide the source into bounded sections. When the host
+provides usable subagent tools, scouts can review independent sections in
+parallel, retain evidence in scratch, and return short summaries. When no
+subagent capability is available, review those same sections sequentially,
+keeping a compact evidence ledger between sections. The evidence and verdict
+requirements stay the same. For a small source, run this phase inline.
 
 ## Phase 3: check the host for prior art
 
@@ -100,8 +103,8 @@ Load `references/granularity-ladder.md` for the four verdicts and their selectio
 ## Phase 5: one approval gate
 
 Present the ranked gate table from `references/findings-template.md` exactly
-once. Nothing is written before this gate, and everything is written after
-it. This is a single gate for the whole review, not one approval per finding;
+once. Project files, agent configuration, and persistent findings are written
+only after this gate; the separate scratch evidence from Phase 2 is temporary. This is a single gate for the whole review, not one approval per finding;
 a mechanism-by-mechanism approval loop defeats the point of ranking findings
 into one table for a single decision.
 
@@ -129,7 +132,8 @@ Phase 0 map the same way any other verdict home resolves: reuse the location
 Phase 0 found if a prior findings document already existed, or create one on
 demand, at the location Phase 0 named as absent, if this is a first run.
 Nothing about this home is scaffolded before this step; a run that stops at
-Phase 5 because the user approved nothing still writes nothing here.
+Phase 5 because the user approved nothing still writes nothing here. Remove
+only the temporary evidence files this run created after handoff or rejection.
 
 ## Re-run behavior
 
