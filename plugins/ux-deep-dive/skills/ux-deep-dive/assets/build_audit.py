@@ -466,7 +466,7 @@ def to_pdf(html_path: Path, out_pdf: Path, chrome: str | None) -> int:
            f"--print-to-pdf={out_pdf}", "--virtual-time-budget=25000", html_path.resolve().as_uri()]
     result = subprocess.run(cmd, capture_output=True, text=True)
     if result.returncode != 0 or not out_pdf.exists():
-        print(f"pdf: render failed ({result.returncode})\n{result.stderr[-2000:]}", file=sys.stderr)
+        print(f"pdf: render failed ({result.returncode})\n{result.stderr}", file=sys.stderr)
         return 1
     pages = count_pdf_pages(out_pdf)
     size_kb = out_pdf.stat().st_size // 1024

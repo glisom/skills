@@ -66,3 +66,20 @@ test('preflight distinguishes missing capture dependencies from optional deliver
     rmSync(scratch, { recursive: true, force: true });
   }
 });
+
+test('PDF failures retain the browser startup error before a long crash trace', () => {
+  const assets = join(ROOT, 'plugins/ux-deep-dive/skills/ux-deep-dive/assets');
+  const result = spawnSync('python3', ['-c', `
+import sys
+from pathlib import Path
+from types import SimpleNamespace
+from unittest.mock import patch
+sys.path.insert(0, sys.argv[1])
+from build_audit import to_pdf
+failure = SimpleNamespace(returncode=-6, stderr="Browser startup failed: no usable sandbox!\\n" + "stack frame\\n" * 300)
+with patch("build_audit.find_chrome", return_value="chrome"), patch("build_audit.subprocess.run", return_value=failure):
+    assert to_pdf(Path("audit.html"), Path("audit.pdf"), None) == 1
+`, assets], { encoding: 'utf8' });
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(result.stderr, /Browser startup failed: no usable sandbox!/);
+});
