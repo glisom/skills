@@ -1,6 +1,6 @@
 # Deliverable spec
 
-One folder, plain ASCII name, self-contained. Everything a reader needs is inside it; nothing in it depends on the machine that produced it.
+One folder, plain ASCII name, self-contained. Everything a reader needs is inside it; nothing in it depends on the machine that produced it. This is the complete bundle when all capabilities are available; see the reduced-output rules below.
 
 ```
 <App>-UX-Audit-<YYYY-MM-DD>/
@@ -15,15 +15,27 @@ One folder, plain ASCII name, self-contained. Everything a reader needs is insid
     motion.json           the clips' notes; motion.html is generated from this
     inventory.md          the coverage table
     fixture-server.js     the fixture used, if one was
-    audit.html            the PDF source (excluded from the archive)
-    img/                  downscaled captures for the PDF (excluded from the archive)
+    audit.html            annotated HTML (keep when no PDF is delivered)
+    img/                  HTML images (keep with audit.html)
 ```
+
+## Reduced output
+
+Record unavailable capabilities and their effect in the README. Select the deliverable from what the host can actually produce:
+
+- Without a PDF renderer, deliver `build/audit.html` and `build/img/` together with the raw captures. Link the HTML as the primary annotated walkthrough. Keep the relative paths intact in the archive.
+- Without Python/script execution, deliver a Markdown walkthrough with finding IDs, tags, evidence, and links to the available captures. Mark HTML/PDF unavailable.
+- Without recording, omit `motion.html`, `motion.json`, and the motion directory when no clips exist. Describe missing motion evidence explicitly. With recordings but no transcoder, retain the original format, point the motion page at those files, and disclose playback limitations.
+- Without writable files, use host-supported artifacts or present the findings in the conversation. Say which files and archive could not be created.
+- Without a runnable or controllable app, deliver the blocker report after cleanup. Do not claim full live coverage.
+
+The README's file table lists only files actually produced. Visual QA applies to the delivered format; when viewing is unavailable, state that visual QA is incomplete. No fallback relaxes the severity ladder's evidence requirements.
 
 ## The PDF
 
 Built by `assets/build_audit.py` from `build/audit.json`. Landscape, one screen per page.
 
-- **Cover.** App name and "UX Audit", a one-sentence tagline, chips with the screen count and the count per tag, the identity block (ref and SHA, date, device and OS, build configuration), the data note, and a pointer to `motion.html`.
+- **Cover.** App name and "UX Audit", a one-sentence tagline, chips with the screen count and the count per tag, the identity block (ref or snapshot, date, device and OS, build configuration), and the data note. Include a pointer to `motion.html` only when that file is produced.
 - **How to read this document.** The marker convention (markers sit near what they describe, not pixel-exact), the severity legend with a "how I used it" column, and the caveat paragraph: build type, data source, which findings need a release-build check.
 - **Section divider.** Letter, title, blurb.
 - **Screen page.** Left: the capture at full page height with numbered, colored markers. Right: the section crumb, the screen title, the file pointer in monospace, and the numbered notes, each opening with its tag. Bottom right: deliberate white space with a faint "for your notes" line. The white space is a feature; the reader asked for something to mark up.
@@ -70,8 +82,9 @@ Built by `assets/build_audit.py` from `build/audit.json`. Landscape, one screen 
 - `text` is HTML: `<b>`, `<i>`, and `<code>` are the intended vocabulary.
 - `id` on a note is optional; the builder assigns `<section><screen>.<note>` (for example `A1.2`) when absent. Set it explicitly on a re-run to carry a prior id forward, and add `status` (`new`, `resolved`, `persisting`, `regressed`) so the index can show it.
 - `page` is `a4` (default) or `letter`.
+- `meta.companion` names an existing motion page. Omit it when no companion page is produced; the builder then omits that pointer.
 
-`build_audit.py --check` validates the file and reports the counts without rendering; run it before every build.
+Run `python3 "$SKILL_DIR/assets/build_audit.py" build/audit.json --check` before every build. `SKILL_DIR` is resolved as described in `references/runtime.md`.
 
 ## The motion page
 
@@ -108,7 +121,7 @@ Built by `assets/build_motion.py` from `build/motion.json`. A single HTML page t
 Written last, from the finished index. Sections, in order:
 
 1. **Identity line.** App, date, ref and SHA, device and OS, build configuration.
-2. **What's here.** A table of every file in the folder and what it is for. The PDF row says "the deliverable".
+2. **What's here.** A table of every produced file and what it is for. Name the primary deliverable: PDF, annotated HTML, or Markdown.
 3. **Severity.** The five tags, what each means, and the count of each.
 4. **The N that matter most.** Three to five, chosen by the precedence in `references/severity-ladder.md`. Each names the file and line or the reproduction, in two or three sentences.
 5. **Decisions, not defects.** Anything tagged as a decision, with why it needs a decision rather than a fix.
@@ -118,14 +131,14 @@ Written last, from the finished index. Sections, in order:
 
 ## `findings-dev.md`
 
-Entries `D-01`, `D-02`, and so on, ordered by how much time each cost. Each entry: a tier from the same ladder, the symptom verbatim, the root cause, the fix that worked, and a "the failure mode is worse than the failure" sentence when the error pointed away from its cause. The document ends with a "Reproducing this audit" section: the fixture command, the app command with its flags, and any mode switch needed for a second pass.
+Entries `D-01`, `D-02`, and so on, ordered by how much time each cost. Each entry: a tier from the same ladder, the symptom verbatim, the confirmed root cause (or "cause unconfirmed"), the fix that worked (or "no working fix found" with attempts and errors), and a "the failure mode is worse than the failure" sentence when the error pointed away from its cause. The document ends with a "Reproducing this audit" section: the fixture command, the app command with its flags, and any mode switch needed for a second pass.
 
 ## Packaging
 
 1. Archive the folder with a root directory whose name is plain ASCII and equals the archive name. A non-ASCII character in the root name is stored without a UTF-8 flag by some archivers and extracts as mojibake on other operating systems, on every entry.
-2. Exclude `build/img/`, `build/audit.html`, and OS metadata files. They are duplicates of `raw/` and the PDF.
-3. Verify: list the archive and check for non-ASCII names; test its integrity; extract it to a temporary folder and confirm the PDF page count and that every clip path in `motion.html` resolves.
-4. State the size against the destination's limit. As of this writing, Slack allows 1 GB, Gmail 25 MB before encoding overhead, and most drives are effectively unlimited. Over the limit means a shared link, not a smaller audit.
+2. When a verified PDF is included, exclude `build/img/` and `build/audit.html` as duplicates. When HTML is the deliverable, include both and verify every image link. Exclude OS metadata files in either case.
+3. Verify the artifacts actually produced: list the archive, test its integrity, and extract it to a temporary folder. Confirm the PDF page count when present and resolve the HTML image and motion links when present. When archive tools are unavailable, hand off the folder or host-supported artifacts and say no archive was created.
+4. State the size against the destination's currently documented limit. Over the limit means a shared link, not a smaller audit.
 
 ## The hand-off message
 

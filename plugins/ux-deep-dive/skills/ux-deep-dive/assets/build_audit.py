@@ -270,7 +270,7 @@ def status_chip(note: dict) -> str:
     return f'<span class="status">{esc(s)}</span>' if s else ""
 
 
-def meta_block(meta: dict, companion_default: str = "motion.html") -> str:
+def meta_block(meta: dict) -> str:
     lines = []
     ref = meta.get("ref")
     date = meta.get("date")
@@ -286,7 +286,7 @@ def meta_block(meta: dict, companion_default: str = "motion.html") -> str:
         lines.append(dev)
     if meta.get("data"):
         lines.append(esc(meta["data"]))
-    companion = meta.get("companion", companion_default)
+    companion = meta.get("companion")
     if companion:
         lines.append(f"Motion, transitions, and any crash reproduction are in the companion page: "
                      f"<code>{esc(companion)}</code>")

@@ -1,6 +1,6 @@
 {
   "name": "ux-deep-dive",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Drive every screen of a mobile or web app, capture all of it, and hand back a pre-annotated, markup-ready UX audit: a PDF, a motion page, the raw captures, the fixture used, and the build blockers hit on the way.",
   "author": { "name": "Grant Isom", "url": "https://github.com/glisom" },
   "homepage": "https://github.com/glisom/skills/tree/main/plugins/ux-deep-dive",

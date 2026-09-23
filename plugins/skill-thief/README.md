@@ -51,14 +51,17 @@ independent trigger, not by being useful.
 ```
 
 
-## Install (other harnesses)
+## Install (Codex, Gemini CLI, and other hosts)
 
-Copy `skills/skill-thief/` into your agent's skills directory (for Claude
-Code specifically, that is `.claude/skills/`). The skill body is written
-harness-neutral on purpose, no scheduler tokens, no harness-specific tool
-names, no unguarded platform path variables, so the same files that ship in
-the plugin work as a plain copy. There is no separate copy of the body to
-keep in sync.
+From the repository root, copy `plugins/skill-thief/skills/skill-thief/` in full to
+`~/.agents/skills/skill-thief/` for Codex or Gemini CLI, or to your host's documented
+skills directory. Include the bundled resources and `LICENSE.txt`. See the
+[root installation guide](../../README.md#install-in-codex-or-gemini-cli) for
+project scope, Windows commands, updates, and duplicate-install handling.
+
+Ask the host to use `skill-thief` by name. Codex CLI also supports `$skill-thief`;
+slash-command syntax varies by host. The same instruction files ship in the
+Claude plugin and the standalone folder.
 
 ## Usage
 
@@ -77,7 +80,10 @@ me what to absorb.
 Each run inventories what this project already has, pins the exact version
 of the source being read, scouts it for mechanisms, checks for prior art,
 classifies every finding against the ladder above, and stops at a single
-approval gate before writing anything.
+approval gate before changing project files or agent configuration. Temporary
+evidence stays in a separate scratch location, or in the conversation when
+scratch is unavailable. Large sources are reviewed sequentially when the host
+has no usable subagent capability.
 
 ## What it will not do
 
@@ -103,16 +109,17 @@ people who work in it.
 
 ## Development
 
-Zero dependencies. Node >= 20.
+Repository development: Node >= 20, Python 3.8+, and `npm ci` from the repository root. The validator uses a YAML parser as a development dependency.
 
 ```bash
-node --test
-node scripts/validate.mjs
+npm ci
+npm test
+npm run validate
 ```
 
-The first runs the test suite, covering manifest integrity, skill
+`npm test` runs the test suite, covering manifest integrity, skill
 frontmatter budgets, reference-path integrity, and harness neutrality. The
-second runs this repository's own zero-dependency validator against those
+`npm run validate` runs this repository's validator against those
 same surfaces. This is a development-time gate on this repo; it is not what
 Phase 6 runs, which is whatever validation Phase 0 discovered the host
 being reviewed already has, a different repo and a different validator each

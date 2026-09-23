@@ -19,7 +19,7 @@ a sentence on what each costs. A free-text answer is taken as final. It closes
 with a compact summary of every answer and every default it chose on its own.
 
 When the harness offers a structured question tool, the skill uses it.
-Otherwise it asks in plain text with the same shape.
+Otherwise it asks in plain text with the same shape. An asynchronous question stays pending until the user actually answers; the skill respects tools restricted to a particular host mode.
 
 It was written for Grant's workflow and says so in its prose. The procedure
 itself is general.
@@ -33,12 +33,17 @@ itself is general.
 
 Once installed, `/decide` invokes it directly.
 
-## Install (other harnesses)
+## Install (Codex, Gemini CLI, and other hosts)
 
-Copy `skills/decide/` into your agent's skills directory (for Claude Code
-specifically, that is `.claude/skills/`). The skill names one Claude Code tool,
-`AskUserQuestion`, and falls back to plain text when that tool is absent, so
-the same file works as a plain copy.
+From the repository root, copy `plugins/decide/skills/decide/` in full to
+`~/.agents/skills/decide/` for Codex or Gemini CLI, or to your host's documented
+skills directory. Include the bundled resources and `LICENSE.txt`. See the
+[root installation guide](../../README.md#install-in-codex-or-gemini-cli) for
+project scope, Windows commands, updates, and duplicate-install handling.
+
+Ask the host to use `decide` by name. Codex CLI also supports `$decide`;
+slash-command syntax varies by host. The same instruction files ship in the
+Claude plugin and the standalone folder.
 
 ## Usage
 

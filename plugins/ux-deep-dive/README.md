@@ -55,14 +55,17 @@ assembly, not shipped with a hedge.
 /plugin install ux-deep-dive@glisom
 ```
 
-## Install (other harnesses)
+## Install (Codex, Gemini CLI, and other hosts)
 
-Copy `skills/ux-deep-dive/` into your agent's skills directory (for Claude
-Code specifically, that is `.claude/skills/`). The skill body is written
-harness-neutral on purpose: no scheduler tokens, no harness-specific tool
-names, no unguarded platform path variables. The helpers under `assets/` are
-plain Bash, Python, and Node with no required packages, so the same files that
-ship in the plugin work as a plain copy.
+From the repository root, copy `plugins/ux-deep-dive/skills/ux-deep-dive/` in full to
+`~/.agents/skills/ux-deep-dive/` for Codex or Gemini CLI, or to your host's documented
+skills directory. Include the bundled resources and `LICENSE.txt`. See the
+[root installation guide](../../README.md#install-in-codex-or-gemini-cli) for
+project scope, Windows commands, updates, and duplicate-install handling.
+
+Ask the host to use `ux-deep-dive` by name. Codex CLI also supports `$ux-deep-dive`;
+slash-command syntax varies by host. The same instruction files ship in the
+Claude plugin and the standalone folder.
 
 ## Usage
 
@@ -77,10 +80,24 @@ Re-run ux-deep-dive against the new build and tell me what changed since the
 last audit.
 ```
 
-Each run pins the build, stands the app up on synthetic data, calibrates the
-capture rig, inventories every route from the code, walks all of them, records
-the clips, assembles the folder, and restores the repository to exactly the
-state it found.
+Each run pins the requested build or current workspace snapshot, checks available
+capabilities, stands the app up on synthetic data, and captures the reachable
+surface. It preserves the original checkout, uses an isolated writable copy
+when temporary changes are needed, and cleans up its own changes on every exit.
+
+## Runtime requirements
+
+Python 3.8+ builds annotated HTML and motion pages. PDF needs Chrome, Chromium,
+or Edge. Scripted web capture needs Node 20+, Playwright and its Chromium
+browser, installed in an audit scratch project. A host browser tool can supply
+web captures instead. FFmpeg transcodes motion clips. Mobile helpers need Bash
+plus Xcode on macOS for iOS or Android platform tools for Android.
+
+Read [runtime.md](skills/ux-deep-dive/references/runtime.md) for absolute helper
+paths and the dependency check. It installs nothing. Without a PDF renderer,
+keep annotated HTML and its images. Without Python, deliver Markdown and raw
+captures. Without recording, report motion gaps. Missing UI control yields a
+blocker report rather than invented live coverage.
 
 ## What it will not do
 
@@ -103,16 +120,18 @@ audit has to notice before the reader does. The environment ladder exists to
 keep the fixture honest; it does not make it real.
 
 The iOS simulator path is the one this skill was generalized from. The Android
-and web references carry the equivalent commands and were checked against the
-platform tools, but no full run has been done on them yet.
+references carry equivalent commands, but no full Android run has been done.
+The web helper has a Chromium smoke test for screenshots, recording, and PDF
+from a standalone copy; this does not certify a full app walkthrough on every host.
 
 ## Development
 
-Zero dependencies. Node >= 20, Python 3.8+ for the asset checks.
+Repository development: Node >= 20, Python 3.8+, and `npm ci` from the repository root. The validator uses YAML and the browser smoke test uses Playwright as development dependencies.
 
 ```bash
-node --test
-node scripts/validate.mjs
+npm ci
+npm test
+npm run validate
 ```
 
 The tests cover manifest integrity, skill frontmatter budgets, reference and
@@ -121,8 +140,8 @@ scripts parse and the audit builder renders the bundled example. To see the
 example deliverable end to end (needs Chrome, Chromium, or Edge for the PDF):
 
 ```bash
-python3 skills/ux-deep-dive/assets/build_audit.py skills/ux-deep-dive/assets/example/audit.json --pdf
-python3 skills/ux-deep-dive/assets/build_motion.py skills/ux-deep-dive/assets/example/motion.json
+python3 plugins/ux-deep-dive/skills/ux-deep-dive/assets/build_audit.py plugins/ux-deep-dive/skills/ux-deep-dive/assets/example/audit.json --pdf
+python3 plugins/ux-deep-dive/skills/ux-deep-dive/assets/build_motion.py plugins/ux-deep-dive/skills/ux-deep-dive/assets/example/motion.json
 ```
 
 CI runs `node --test` and `node scripts/validate.mjs` on every push and pull

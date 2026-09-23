@@ -1,6 +1,7 @@
 ---
 name: decide
 description: Walk Grant through every open decision one at a time with three options (one recommended). Use when he says /decide, asks to go through decisions, wants options for open questions, or a task has several choices only he can make.
+license: MIT
 ---
 
 # Decide
@@ -21,9 +22,11 @@ Do not invent decisions to make the list look thorough. If there is only one, as
 
 Ask exactly one decision per turn. Do not preview the rest of the list beyond a short count ("3 decisions, here is the first"). Batching them defeats the point.
 
-When the `AskUserQuestion` tool is available, use it. Give three options. Put the recommended option first with "(Recommended)" at the end of its label. Each option gets a one or two sentence description that says what it means and what it costs, so the choice is real and not just a label. The tool already lets him type his own answer, so do not add a fourth "other" option.
+Use the host's available structured question tool when it is usable in the current mode. Discover it by its capability to ask the user a question with suggested answers, not by a particular tool name. Follow its actual schema. Give three options. Put the recommended option first with "(Recommended)" at the end of its label. Each option gets a one or two sentence description that says what it means and what it costs; when the schema has only answer strings, include the tradeoff there. If the tool already supports free text, do not add a fourth "other" option.
 
-When the tool is not available, ask in plain text with the same shape: one short line of context on why this decision exists, then three numbered options with the recommended one marked, then a note that he can answer in his own words.
+When no suitable question tool is available in the current mode, ask in plain text with the same shape: one short line of context on why this decision exists, then three numbered options with the recommended one marked, then a note that he can answer in his own words.
+
+Wait for the user's actual answer before asking the next decision or doing work that depends on it. An asynchronous question returning immediately, a preselected option, or elapsed time is not an answer. Independent work can continue while the question is pending.
 
 Keep the framing short. He knows the context; one or two sentences on why this matters and what depends on it is enough. Put the tradeoff in the option descriptions, not in a preamble.
 

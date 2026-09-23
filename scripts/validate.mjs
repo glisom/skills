@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Zero-dependency validator for the glisom marketplace.
+// Validator for the glisom marketplace and its portable skill folders.
 //
 // Walks every plugin under plugins/ and checks: marketplace and plugin manifest
 // integrity, skill frontmatter budgets, reference and asset path integrity,
@@ -10,12 +10,14 @@ import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { dirname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
+import { parseDocument } from 'yaml';
 
 export const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 export const DESCRIPTION_MAX = 1024;
 export const NAME_MAX = 64;
 export const NAME_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const SEMVER = /^\d+\.\d+\.\d+$/;
+const displayPath = (root, file) => relative(root, file).split(sep).join('/');
 
 function isDir(path) {
   return existsSync(path) && statSync(path).isDirectory();
@@ -153,21 +155,16 @@ export function checkTestsExist(root = ROOT) {
 // ---- skill frontmatter ---------------------------------------------------------------------------
 
 export function parseFrontmatter(source) {
-  if (!source.startsWith('---\n')) return null;
-  const end = source.indexOf('\n---', 3);
-  if (end === -1) return null;
-  const fields = {};
-  for (const line of source.slice(4, end).split('\n')) {
-    const match = line.match(/^([a-z][a-z0-9_-]*):\s*(.*)$/);
-    if (match) fields[match[1]] = match[2].trim();
+  const block = source.replace(/^\uFEFF/, '').replace(/\r\n/g, '\n').match(/^---[ \t]*\n([\s\S]*?)\n---[ \t]*(?:\n|$)/);
+  if (!block) return null;
+  try {
+    const document = parseDocument(block[1], { uniqueKeys: true });
+    if (document.errors.length || document.warnings.length) return null;
+    const fields = document.toJS({ maxAliasCount: 50 });
+    return fields && typeof fields === 'object' && !Array.isArray(fields) ? fields : null;
+  } catch {
+    return null;
   }
-  return fields;
-}
-
-function unquote(value) {
-  const trimmed = value.trim();
-  if (trimmed.length >= 2 && /^(".*"|'.*')$/s.test(trimmed)) return trimmed.slice(1, -1);
-  return trimmed;
 }
 
 export function checkSkills(root = ROOT) {
@@ -188,10 +185,24 @@ export function checkSkills(root = ROOT) {
       continue;
     }
     if (fields.name !== name) errors.push(`${rel}: name "${fields.name}" does not match directory "${name}"`);
-    const description = unquote(fields.description ?? '');
-    if (!description) errors.push(`${rel}: empty description`);
+    const description = fields.description;
+    if (description == null || description === '') errors.push(`${rel}: empty description`);
+    else if (typeof description !== 'string') errors.push(`${rel}: description must be a string`);
+    else if (!description.trim()) errors.push(`${rel}: empty description`);
     else if (description.length > DESCRIPTION_MAX) {
       errors.push(`${rel}: description ${description.length} chars, limit ${DESCRIPTION_MAX}`);
+    }
+    if (fields.compatibility !== undefined &&
+        (typeof fields.compatibility !== 'string' || !fields.compatibility.trim() || fields.compatibility.length > 500)) {
+      errors.push(`${rel}: compatibility must be a non-empty string, at most 500 chars`);
+    }
+    for (const field of ['license', 'allowed-tools']) {
+      if (fields[field] !== undefined && typeof fields[field] !== 'string') errors.push(`${rel}: ${field} must be a string`);
+    }
+    if (fields.metadata !== undefined &&
+        (!fields.metadata || typeof fields.metadata !== 'object' || Array.isArray(fields.metadata) ||
+         Object.values(fields.metadata).some((value) => typeof value !== 'string'))) {
+      errors.push(`${rel}: metadata must map keys to string values`);
     }
   }
   return errors;
@@ -242,10 +253,10 @@ export function checkReferences(root = ROOT) {
         const resolved = join(dir, token);
         const rel = relative(dir, resolved);
         if (rel === '..' || rel.startsWith(`..${sep}`)) {
-          errors.push(`${relative(root, file)}: references "${token}" which escapes the skill directory`);
+          errors.push(`${displayPath(root, file)}: references "${token}" which escapes the skill directory`);
           continue;
         }
-        if (!existsSync(resolved)) errors.push(`${relative(root, file)}: references "${token}" which does not exist`);
+        if (!existsSync(resolved)) errors.push(`${displayPath(root, file)}: references "${token}" which does not exist`);
       }
     }
   }
@@ -256,8 +267,9 @@ export function checkReferences(root = ROOT) {
 
 const HARNESS_SPECIFIC = [
   [/\/loop\b/g, 'scheduler token "/loop" is harness-specific'],
-  [/\$\{CLAUDE_[A-Z_]+\}/g, 'unguarded ${CLAUDE_*} variable; resolve the skill directory from the file location instead'],
-  [/\.claude\/skills\//g, 'hardcoded .claude/ path; say "your skills directory" instead'],
+  [/\$\{?(?:CLAUDE|CODEX|GEMINI)_[A-Z_]+\}?/g, 'provider-specific variable; resolve the skill directory from the file location instead'],
+  [/\.(?:claude|codex|gemini)[\\/](?:skills|plugins)[\\/]/g, 'hardcoded provider path; resolve resources from the skill file location instead'],
+  [/\b(?:AskUserQuestion|TodoWrite|WebFetch|WebSearch)\b/g, 'provider-specific tool name; describe the capability and its fallback instead'],
 ];
 
 export function checkNeutrality(root = ROOT) {
@@ -267,7 +279,7 @@ export function checkNeutrality(root = ROOT) {
       const source = readFileSync(file, 'utf8');
       for (const [pattern, message] of HARNESS_SPECIFIC) {
         for (const match of source.matchAll(pattern)) {
-          errors.push(`${relative(root, file)}: ${message} (found "${match[0]}")`);
+          errors.push(`${displayPath(root, file)}: ${message} (found "${match[0]}")`);
         }
       }
     }
@@ -294,7 +306,7 @@ export function checkProse(root = ROOT) {
       .split('\n')
       .forEach((line, index) => {
         if (line.includes('—')) {
-          errors.push(`${relative(root, file)}:${index + 1}: em dash; use a comma, a period, or parentheses`);
+          errors.push(`${displayPath(root, file)}:${index + 1}: em dash; use a comma, a period, or parentheses`);
         }
       });
   }
@@ -313,7 +325,7 @@ function run(cmd, args, cwd) {
 }
 
 function syntaxCheck(file) {
-  if (file.endsWith('.sh')) return run('bash', ['-n', file]);
+  if (file.endsWith('.sh')) return run('bash', ['-n', file.split(sep).join('/')]);
   if (file.endsWith('.mjs') || file.endsWith('.js')) return run(process.execPath, ['--check', file]);
   if (file.endsWith('.py')) return run('python3', ['-c', 'import ast,sys; ast.parse(open(sys.argv[1]).read())', file]);
   return null;
@@ -330,7 +342,7 @@ export function checkAssets(root = ROOT) {
         if (!statSync(file).isFile()) continue;
         const result = syntaxCheck(file);
         if (!result) continue;
-        const rel = relative(root, file);
+        const rel = displayPath(root, file);
         if (result.error) errors.push(`${rel}: could not run the syntax check (${result.error.message})`);
         else if (!result.ok) errors.push(`${rel}: syntax check failed\n${result.output}`);
       }
@@ -345,8 +357,8 @@ export function checkAssets(root = ROOT) {
       const script = join(assets, builder);
       if (!existsSync(example) || !existsSync(script)) continue;
       const result = run('python3', [script, example, '--check']);
-      if (result.error) errors.push(`${relative(root, script)}: could not run (${result.error.message})`);
-      else if (!result.ok) errors.push(`${relative(root, script)} --check on the bundled example failed\n${result.output}`);
+      if (result.error) errors.push(`${displayPath(root, script)}: could not run (${result.error.message})`);
+      else if (!result.ok) errors.push(`${displayPath(root, script)} --check on the bundled example failed\n${result.output}`);
     }
   }
   return errors;

@@ -1,6 +1,6 @@
 {
   "name": "write-like-grant",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Write or rewrite a message in Grant Isom's personal voice: warm, upbeat, concise, and a little playful, with the formality dialed to match the reader.",
   "author": { "name": "Grant Isom", "url": "https://github.com/glisom" },
   "homepage": "https://github.com/glisom/skills/tree/main/plugins/write-like-grant",

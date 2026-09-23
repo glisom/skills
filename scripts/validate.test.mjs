@@ -315,6 +315,7 @@ test('build_audit.py renders the example into the expected number of pages', () 
     assert.equal((html.match(/class="page/g) || []).length, expected);
     assert.equal((html.match(/class="marker"/g) || []).length, notes);
     assert.ok(html.includes('A1.1'), 'the index carries generated note ids');
+    assert.ok(html.includes('<code>motion.html</code>'), 'an explicit companion is included');
     assert.equal(readdirSync(join(root, 'build', 'img')).length, data.screens.length);
   });
 });
@@ -328,6 +329,18 @@ test('build_audit.py --check reports a missing capture instead of rendering', ()
     assert.equal(result.status, 1);
     assert.match(result.stderr, /99-missing\.png.*not found/);
     assert.ok(!existsSync(join(root, 'build', 'audit.html')));
+  });
+});
+
+test('a still-only audit does not advertise a nonexistent motion companion', () => {
+  withExample((root) => {
+    const input = join(root, 'audit.json');
+    const data = JSON.parse(readFileSync(input, 'utf8'));
+    delete data.meta.companion;
+    writeFileSync(input, JSON.stringify(data));
+    const result = spawnSync('python3', [join(UX_ASSETS, 'build_audit.py'), input], { encoding: 'utf8' });
+    assert.equal(result.status, 0, result.stderr);
+    assert.ok(!readFileSync(join(root, 'build/audit.html'), 'utf8').includes('<code>motion.html</code>'));
   });
 });
 
@@ -355,9 +368,68 @@ test('build_motion.py renders one card per clip', () => {
   });
 });
 
+test('original WebM recordings keep their media type without claiming transcoding', () => {
+  withExample((root) => {
+    const input = join(root, 'motion.json');
+    const data = JSON.parse(readFileSync(input, 'utf8'));
+    data.clips[0].file = 'motion/original.webm';
+    data.clips[1].file = 'motion/original.mov';
+    delete data.footer;
+    writeFileSync(input, JSON.stringify(data));
+    const result = spawnSync('python3', [join(UX_ASSETS, 'build_motion.py'), input], { encoding: 'utf8' });
+    assert.equal(result.status, 0, result.stderr);
+    const html = readFileSync(join(root, 'motion.html'), 'utf8');
+    assert.match(html, /original.webm" type="video\/webm"/);
+    assert.match(html, /original.mov" type="video\/quicktime"/);
+    assert.ok(!html.includes('transcoded to H.264'));
+  });
+});
+
 // ---- parsing ------------------------------------------------------------------------------------
 
 test('frontmatter parser reads simple fields and rejects bodies without a block', () => {
-  assert.deepEqual(parseFrontmatter('---\nname: a\ndescription: "b"\n---\nbody'), { name: 'a', description: '"b"' });
+  assert.deepEqual(parseFrontmatter('---\nname: a\ndescription: "b"\n---\nbody'), { name: 'a', description: 'b' });
   assert.equal(parseFrontmatter('no frontmatter'), null);
+});
+
+test('valid YAML frontmatter survives Windows newlines, quoting, and folded descriptions', () => {
+  withFixture((root) => {
+    writeSkill(root, 'alpha', 'alpha', '---\r\nname: "alpha"\r\ndescription: >-\r\n  Review an app:\r\n  capture its screens.\r\ncompatibility: Requires a browser.\r\nmetadata:\r\n  version: "1.0"\r\n---\r\n');
+    assert.deepEqual(checkSkills(root), []);
+  });
+});
+
+test('invalid YAML and duplicate keys are rejected instead of silently accepted', () => {
+  withFixture((root) => {
+    for (const fields of [
+      'name: alpha\ndescription: "unterminated',
+      'name: alpha\ndescription: first\ndescription: second',
+      'name: alpha\ndescription: bad: mapping',
+    ]) {
+      writeSkill(root, 'alpha', 'alpha', `---\n${fields}\n---\n`);
+      assert.match(checkSkills(root).join('\n'), /malformed frontmatter/);
+    }
+  });
+});
+
+test('frontmatter field types and optional compatibility budgets are validated', () => {
+  withFixture((root) => {
+    for (const field of ['description: [one, two]', 'description: 42', 'description: true']) {
+      writeSkill(root, 'alpha', 'alpha', `---\nname: alpha\n${field}\n---\n`);
+      assert.match(checkSkills(root).join('\n'), /description.*string/);
+    }
+    for (const field of ['compatibility: 42', `compatibility: "${'x'.repeat(501)}"`, 'metadata: [one, two]', 'metadata:\n  version: 1']) {
+      writeSkill(root, 'alpha', 'alpha', `---\nname: alpha\ndescription: Fine\n${field}\n---\n`);
+      assert.ok(checkSkills(root).length > 0, field);
+    }
+  });
+});
+
+test('neutrality checks flag additional provider paths and variables in portable instructions', () => {
+  withFixture((root) => {
+    for (const body of ['Read $CLAUDE_PLUGIN_ROOT/file.', 'Read ~/.codex/skills/my-skill/file.', 'Read C:\\Users\\Grant\\.claude\\skills\\my-skill\\file.']) {
+      writeSkill(root, 'alpha', 'alpha', `---\nname: alpha\ndescription: Fine\n---\n${body}\n`);
+      assert.ok(checkNeutrality(root).length > 0, body);
+    }
+  });
 });

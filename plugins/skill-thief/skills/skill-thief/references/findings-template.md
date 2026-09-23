@@ -1,7 +1,8 @@
 # Findings document template
 
 This is the skeleton for the single document presented at the Phase 5
-approval gate. Nothing is written before that gate; this document is the
+approval gate. This persistent document is not written before that gate;
+temporary evidence may live in separate scratch or the conversation. This document is the
 first artifact produced, and it is produced once.
 
 ## Front section: source identity

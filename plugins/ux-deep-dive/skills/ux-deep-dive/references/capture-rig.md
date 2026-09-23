@@ -4,7 +4,7 @@ The rig is the set of habits that make a capture trustworthy. Set it up once in 
 
 ## The capture helper
 
-`assets/capture.sh <slug>` writes `raw/NN-<slug>.png` at full resolution and a preview at point scale for coordinate work. `NN` is assigned as the next number in the folder unless the slug already starts with one. Environment variables select the platform, the device, and the output folder; the header of the script lists them. On the web, `assets/web-capture.mjs` does the same from a list of routes.
+Run `bash "$SKILL_DIR/assets/capture.sh" <slug>` from the audit directory to write `raw/NN-<slug>.png` at full resolution and a preview for coordinate work. Resolve `SKILL_DIR` using `references/runtime.md`. `NN` is assigned as the next number in the folder unless the slug already starts with one. Environment variables select the platform, device, and output folder; the script header lists them. On the web, `assets/web-capture.mjs` captures a list of routes.
 
 Naming rules, because `build/audit.json` refers to these files and a rename after the fact breaks it:
 
@@ -43,8 +43,8 @@ Enable the software keyboard (the platform reference says how; on some simulator
 Developer toasts, warning boxes, "connected to the bundler" pills, framework error overlays, and cookie banners all end up in captures. The order is fixed:
 
 1. Read them first. A recurring warning is often a real finding about the code (a require cycle, a deprecated API, a missing key).
-2. Suppress them with a reversible change, marked with a comment you can grep for, and record the change in the Phase 7 revert list.
-3. Never crop them out of a capture, and never ship a capture that still shows one.
+2. Suppress them in the isolated audit environment with a reversible change, marked with a comment you can search for, and record the change in the Phase 7 revert list. With no writable isolated environment, record the overlay as a capture limitation; preserve the original checkout.
+3. Never crop an overlay out to conceal it. When it cannot be suppressed in the audit environment, retain the labeled evidence and mark the affected clean-capture coverage incomplete.
 
 ## Status bar and chrome
 
@@ -64,7 +64,7 @@ Overlap consecutive captures by roughly a fifth of the screen so nothing falls b
 2. Confirm the process is gone using the platform command, so a crash is not confused with a navigation reset.
 3. Pull the native log for the last minute, filtered to the process, and keep the exception line verbatim.
 4. Relaunch and reproduce a second time. One occurrence is a note; two is a P0.
-5. Record a clip on the second or third reproduction.
+5. Record a clip on the second or third reproduction when recording is available. Otherwise keep stills and the required crash evidence and record the missing clip as a limitation.
 6. Say whether the app's own error boundary caught it or the operating system did. A caught error is a broken screen; an uncaught one is a terminated session, and the fix path differs.
 
 ## Wiping state
@@ -77,4 +77,4 @@ At the end of the walk, capture the six to eight most important screens again in
 
 ## The cleanliness gate
 
-Before assembly, look at every capture in `raw/` at thumbnail size in one grid. Anything carrying a dev artifact, a mistyped value, a crash overlay left over from the previous screen, or the wrong screen entirely is recaptured. This gate takes two minutes and is the difference between a deliverable and a draft.
+Before assembly, look at every capture in `raw/` at thumbnail size in one grid. Recapture dev artifacts introduced by this run, mistyped values, overlays left over from a prior screen, and wrong screens. When an environment limit prevents a clean recapture, label that evidence and mark the affected coverage incomplete. If image viewing is unavailable, explicitly mark visual QA incomplete.

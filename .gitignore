@@ -2,6 +2,8 @@ node_modules/
 .DS_Store
 *.log
 scratch/
+__pycache__/
+*.pyc
 
 # Rendered outputs of the bundled ux-deep-dive example; the inputs are tracked.
 plugins/ux-deep-dive/skills/ux-deep-dive/assets/example/build/
