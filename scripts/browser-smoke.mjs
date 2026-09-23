@@ -10,6 +10,7 @@ import { chromium } from 'playwright';
 import { ROOT } from './validate.mjs';
 
 const exec = promisify(execFile);
+const pdfBrowser = process.env.CHROME_BIN || chromium.executablePath();
 
 test('standalone web capture uses scratch dependencies and produces screenshots, video, and PDF', { timeout: 90000 }, async () => {
   const scratch = mkdtempSync(join(tmpdir(), 'uxdd browser '));
@@ -27,7 +28,7 @@ test('standalone web capture uses scratch dependencies and produces screenshots,
     symlinkSync(join(ROOT, 'node_modules'), join(output, 'node_modules'), process.platform === 'win32' ? 'junction' : 'dir');
     writeFileSync(join(output, 'package.json'), '{"private":true}\n');
     writeFileSync(join(output, 'routes.txt'), '/\n/settings\n');
-    const preflight = await exec('python3', [join(installed, 'assets/preflight.py'), '--platform', 'web', '--json', '--chrome', chromium.executablePath()], { cwd: output });
+    const preflight = await exec('python3', [join(installed, 'assets/preflight.py'), '--platform', 'web', '--json', '--chrome', pdfBrowser], { cwd: output });
     const readiness = JSON.parse(preflight.stdout);
     assert.equal(readiness.capture.ready, true);
     assert.equal(readiness.pdf.ready, true);
@@ -48,7 +49,7 @@ test('standalone web capture uses scratch dependencies and produces screenshots,
       screens: [{ section: 'A', title: 'Home', file: 'raw/01-home.png', notes: [{ sev: 'keep', x: 50, y: 50, text: 'Visible heading.' }] }] };
     writeFileSync(join(output, 'build/audit.json'), JSON.stringify(audit));
     await exec('python3', [join(installed, 'assets/build_audit.py'), join(output, 'build/audit.json'),
-      '--pdf', '--no-downscale', '--chrome', chromium.executablePath(),
+      '--pdf', '--no-downscale', '--chrome', pdfBrowser,
     ], { cwd: output, timeout: 45000 });
     const pdf = readFileSync(join(output, 'Portable-UX-Audit.pdf'));
     assert.equal(pdf.subarray(0, 4).toString(), '%PDF');

@@ -34,7 +34,7 @@ An independent agent read the old and updated instructions and selected concrete
 
 ## CI and support boundaries
 
-CI is configured for unit and asset checks on Linux, macOS, and Windows, with a separate real Chromium smoke test on Linux. Those additional hosted jobs must run in CI; local macOS results do not establish their results.
+Hosted unit and asset checks passed on Linux, macOS, and Windows on 2026-09-23. A separate Linux browser job exercises real screenshots, video, console evidence, and PDF generation. It uses Playwright's Chromium for capture and the runner's installed Chrome for PDF rendering, whose sandbox is supported by Ubuntu's AppArmor policy. The smoke test accepts `CHROME_BIN` to select a PDF browser on other machines. Browser startup errors are retained in full if rendering fails.
 
 Codex and Gemini installation paths are based on their linked official documentation in the root README. No live Gemini, Copilot, or other agent session was used to certify full workflow behavior. The text-only writing skill has no runtime dependencies; the decision skill can use plain text in any interactive host that reads its instructions.
 

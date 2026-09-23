@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Resolve helpers from the installed skill location, add dependency preflight, preserve managed/offline/dirty workspaces, clean up on early exit, and support HTML, Markdown, and still-only deliverables. Verify standalone web capture and PDF generation.
 - Include the MIT license in the standalone skill directory.
+- Preserve PDF startup diagnostics and document sandbox-compatible Chrome selection on Ubuntu.
 
 ## [0.1.1] - 2026-09-15
 

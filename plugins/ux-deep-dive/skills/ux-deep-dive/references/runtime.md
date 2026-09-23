@@ -35,6 +35,8 @@ If Python or a shell is unavailable, inspect the capability table directly. Do n
 
 Install missing packages only within the host's permissions and the user's task scope. Keep packages in an audit scratch project, outside the app and installed skill. On Linux, Playwright may also need system browser libraries. Native Windows can run the Node and Python helpers; the bundled mobile shell helpers require Bash (for example, a suitably configured WSL environment) and device access from that environment. iOS simulation still requires macOS.
 
+For PDF rendering on Ubuntu, downloaded Chromium builds can fail with `No usable sandbox!` even when preflight finds the binary. Prefer an installed Chrome with a working sandbox via `--chrome PATH` or `CHROME_BIN`. See [Chromium's Ubuntu sandbox guidance](https://chromium.googlesource.com/chromium/src/+/main/docs/security/apparmor-userns-restrictions.md). If launch remains blocked, keep the annotated HTML and report PDF unavailable.
+
 ## Run helpers from the audit directory
 
 Keep the current directory at `AUDIT_DIR`: the web helper resolves Playwright from that directory and writes its default logs there. Always use absolute installed helper paths.

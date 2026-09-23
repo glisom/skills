@@ -34,7 +34,9 @@ jobs:
           python-version: "3.x"
       - run: npm ci
       - run: npx playwright install --with-deps chromium
-      - run: npm run test:browser
+      # Ubuntu's AppArmor policy permits the installed Chrome sandbox. Downloaded
+      # Chromium builds cannot use it without additional host configuration.
+      - run: CHROME_BIN="$(command -v google-chrome)" npm run test:browser
 
   manifests:
     # The official manifest check, so a schema change upstream fails here first.
